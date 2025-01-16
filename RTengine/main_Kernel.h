@@ -4,17 +4,19 @@
 #include <inttypes.h>
 #include <vector>
 
+#include <glm/glm.hpp>
+
 
 class Renderer_cu {
 
 	int width, height;
-	float* d_image{ nullptr };
+	glm::vec3* d_image{ nullptr };
 
 public:
 	Renderer_cu(int width, int height);
 
 	void Run();
-	std::vector<float> Download();
+	std::vector<glm::vec3> Download();
 	void Delete();
 };
 

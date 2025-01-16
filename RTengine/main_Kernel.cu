@@ -1,13 +1,15 @@
 #include "main_Kernel.h"
 
 #include <iostream>
+
 #include <stb/stb_image_write.h>
+#include <glm/glm.hpp>
 
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
 
-__global__ void kernel(int width, int height, float* image) {
+__global__ void kernel(int width, int height, glm::vec3* image) {
 	int gid = blockDim.x * blockIdx.x + threadIdx.x;
 	if (gid >= width * height) return;
 
@@ -18,14 +20,14 @@ __global__ void kernel(int width, int height, float* image) {
 	float g = y / (height - 1.0f);
 	float b = (r + g) / 2.0f;
 
-	image[gid * 3 + 0] = r;
-	image[gid * 3 + 1] = g;
-	image[gid * 3 + 2] = b;
+	image[gid][0] = r;
+	image[gid][1] = g;
+	image[gid][2] = b;
 }
 
 Renderer_cu::Renderer_cu(int width, int height) : width(width), height(height) {
 	std::cout << "Allocating image memory on device... ";
-	cudaMalloc((void**)&d_image, width * height * 3 * sizeof(float));
+	cudaMalloc((void**)&d_image, width * height * sizeof(glm::vec3));
 	std::cout << "allocation finished.\n";
 }
 
@@ -42,10 +44,10 @@ void Renderer_cu::Run() {
 	std::cout << "kernel finished.\n";
 }
 
-std::vector<float> Renderer_cu::Download() {
+std::vector<glm::vec3> Renderer_cu::Download() {
 	std::cout << "Downloading kernel image from device... ";
-	std::vector<float> h_image(width * height * 3, 0.0f);
-	cudaMemcpy((float*)h_image.data(), d_image, width * height * 3 * sizeof(float), cudaMemcpyDeviceToHost);
+	std::vector<glm::vec3> h_image(width * height, glm::vec3(0.0f));
+	cudaMemcpy((glm::vec3*)h_image.data(), d_image, width * height * sizeof(glm::vec3), cudaMemcpyDeviceToHost);
 	std::cout << "download done.\n";
 	return h_image;
 }
