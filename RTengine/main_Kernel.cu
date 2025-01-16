@@ -23,13 +23,13 @@ __global__ void kernel(int width, int height, float* image) {
 	image[gid * 3 + 2] = b;
 }
 
-Kernel::Kernel(int width, int height) : width(width), height(height) {
+Renderer_cu::Renderer_cu(int width, int height) : width(width), height(height) {
 	std::cout << "Allocating image memory on device... ";
 	cudaMalloc((void**)&d_image, width * height * 3 * sizeof(float));
 	std::cout << "allocation finished.\n";
 }
 
-void Kernel::Run() {
+void Renderer_cu::Run() {
 
 	int threads = 32;
 	int blocks = (width * height + threads - 1) / threads;
@@ -42,7 +42,7 @@ void Kernel::Run() {
 	std::cout << "kernel finished.\n";
 }
 
-std::vector<float> Kernel::Download() {
+std::vector<float> Renderer_cu::Download() {
 	std::cout << "Downloading kernel image from device... ";
 	std::vector<float> h_image(width * height * 3, 0.0f);
 	cudaMemcpy((float*)h_image.data(), d_image, width * height * 3 * sizeof(float), cudaMemcpyDeviceToHost);
@@ -50,7 +50,7 @@ std::vector<float> Kernel::Download() {
 	return h_image;
 }
 
-void Kernel::Delete() {
+void Renderer_cu::Delete() {
 	std::cout << "Deleting kernel device memory... ";
 	cudaFree(d_image);
 	d_image = nullptr;

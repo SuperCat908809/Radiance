@@ -5,13 +5,13 @@
 #include <vector>
 
 
-class Kernel {
+class Renderer_cu {
 
 	int width, height;
 	float* d_image{ nullptr };
 
 public:
-	Kernel(int width, int height);
+	Renderer_cu(int width, int height);
 
 	void Run();
 	std::vector<float> Download();
