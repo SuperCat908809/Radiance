@@ -2,16 +2,20 @@
 #define MAIN_KERNEL_H
 
 #include <inttypes.h>
+#include <vector>
+
 
 class Kernel {
 
-public:
-	Kernel() = default;
+	int width, height;
+	float* d_image{ nullptr };
 
-	int width = 256;
-	int height = 256;
+public:
+	Kernel(int width, int height);
 
 	void Run();
+	std::vector<float> Download();
+	void Delete();
 };
 
 #endif // MAIN_KERNEL_H //

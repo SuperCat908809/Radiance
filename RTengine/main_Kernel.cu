@@ -7,7 +7,7 @@
 #include <device_launch_parameters.h>
 
 
-__global__ void kernel(int width, int height, uint8_t* image) {
+__global__ void kernel(int width, int height, float* image) {
 	int gid = blockDim.x * blockIdx.x + threadIdx.x;
 	if (gid >= width * height) return;
 
@@ -18,40 +18,41 @@ __global__ void kernel(int width, int height, uint8_t* image) {
 	float g = y / (height - 1.0f);
 	float b = (r + g) / 2.0f;
 
-	image[gid * 3 + 0] = static_cast<uint8_t>(r * 255.999f);
-	image[gid * 3 + 1] = static_cast<uint8_t>(g * 255.999f);
-	image[gid * 3 + 2] = static_cast<uint8_t>(b * 255.999f);
+	image[gid * 3 + 0] = r;
+	image[gid * 3 + 1] = g;
+	image[gid * 3 + 2] = b;
+}
+
+Kernel::Kernel(int width, int height) : width(width), height(height) {
+	std::cout << "Allocating image memory on device... ";
+	cudaMalloc((void**)&d_image, width * height * 3 * sizeof(float));
+	std::cout << "allocation finished.\n";
 }
 
 void Kernel::Run() {
 
-	std::cout << "Starting kernel.\n";
-
-	uint8_t* d_image{ nullptr };
-	std::cout << "Allocating image memory on device.\n";
-	cudaMalloc((void**)&d_image, width * height * 3 * sizeof(uint8_t));
-
-
 	int threads = 32;
 	int blocks = (width * height + threads - 1) / threads;
 
-	std::cout << "Launching render kernel.\n";
+	std::cout << "Launching render kernel... \n";
+
 	kernel<<<blocks, threads>>>(width, height, d_image);
 	cudaDeviceSynchronize();
 
-	std::cout << "Downloading rendered image from device to host.\n";
-	uint8_t* h_image = new uint8_t[width * height * 3];
-	cudaMemcpy(h_image, d_image, width * height * 3 * sizeof(uint8_t), cudaMemcpyDeviceToHost);
+	std::cout << "kernel finished.\n";
+}
+
+std::vector<float> Kernel::Download() {
+	std::cout << "Downloading kernel image from device... ";
+	std::vector<float> h_image(width * height * 3, 0.0f);
+	cudaMemcpy((float*)h_image.data(), d_image, width * height * 3 * sizeof(float), cudaMemcpyDeviceToHost);
+	std::cout << "download done.\n";
+	return h_image;
+}
+
+void Kernel::Delete() {
+	std::cout << "Deleting kernel device memory... ";
 	cudaFree(d_image);
-
-
-	std::cout << "Writing image to disk.\n";
-	stbi_flip_vertically_on_write(true);
-	stbi_write_jpg("kernel_testing.jpg", width, height, 3, h_image, 90);
-
-
-	delete[] h_image;
-
-
-	std::cout << "Kernel operation finished.\n";
+	d_image = nullptr;
+	std::cout << "deletion finished.\n";
 }
