@@ -3,7 +3,4 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="cuda_test.cu" />
-  </ItemGroup>
 </Project>
