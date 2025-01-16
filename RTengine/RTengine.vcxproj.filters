@@ -4,4 +4,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stb.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="main_Kernel.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main_Kernel.h" />
+  </ItemGroup>
 </Project>

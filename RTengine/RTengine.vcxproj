@@ -159,6 +159,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stb.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="main_Kernel.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main_Kernel.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.6.targets" />
