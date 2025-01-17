@@ -14,21 +14,21 @@ int main() {
 	int width = 1920;
 	int height = 1080;
 
-	Renderer_cu kernel(width, height);
+	{
+		Renderer_cu kernel(width, height);
 
-	kernel.Run();
-	auto float_image = kernel.Download();
-	kernel.Delete();
+		kernel.Run();
+		auto float_image = kernel.Download();
 
-	std::vector<glm::u8vec3> image(float_image.size());
+		std::vector<glm::u8vec3> image(float_image.size());
 
-	for (int i = 0; i < width * height; i++) {
-		image[i] = static_cast<glm::u8vec3>(float_image[i] * 255.0f);
+		for (int i = 0; i < width * height; i++) {
+			image[i] = float_image[i] * 255.0f;
+		}
+
+		stbi_flip_vertically_on_write(true);
+		stbi_write_jpg("kernel_raii_testing.jpg", width, height, 3, image.data(), 90);
 	}
-
-	stbi_flip_vertically_on_write(true);
-	stbi_write_jpg("kernel_glm_testing.jpg", width, height, 3, image.data(), 90);
-
 
 	cudaDeviceReset();
 
