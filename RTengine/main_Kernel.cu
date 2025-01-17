@@ -4,6 +4,7 @@
 
 #include <stb/stb_image_write.h>
 #include <glm/glm.hpp>
+#include <easylogging/easylogging++.h>
 
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
@@ -26,9 +27,9 @@ __global__ void kernel(int width, int height, glm::vec3* image) {
 }
 
 Renderer_cu::Renderer_cu(int width, int height) : width(width), height(height) {
-	std::cout << "Allocating image memory on device... ";
+	LOG(INFO) << "Allocating image memory on device";
 	cudaMalloc((void**)&d_image, width * height * sizeof(glm::vec3));
-	std::cout << "allocation finished.\n";
+	LOG(INFO) << "allocation finished";
 }
 
 void Renderer_cu::Run() {
@@ -36,25 +37,29 @@ void Renderer_cu::Run() {
 	int threads = 32;
 	int blocks = (width * height + threads - 1) / threads;
 
-	std::cout << "Launching render kernel... \n";
-
+	LOG(INFO) << "Launching render kernel";
 	kernel<<<blocks, threads>>>(width, height, d_image);
 	cudaDeviceSynchronize();
-
-	std::cout << "kernel finished.\n";
+	LOG(INFO) << "kernel finished";
 }
 
 std::vector<glm::vec3> Renderer_cu::Download() {
-	std::cout << "Downloading kernel image from device... ";
+
+	LOG(INFO) << "Downloading kernel image from device";
 	std::vector<glm::vec3> h_image(width * height, glm::vec3(0.0f));
 	cudaMemcpy((glm::vec3*)h_image.data(), d_image, width * height * sizeof(glm::vec3), cudaMemcpyDeviceToHost);
-	std::cout << "download done.\n";
+	LOG(INFO) << "download done";
+
 	return h_image;
 }
 
 void Renderer_cu::Delete() {
-	std::cout << "Deleting kernel device memory... ";
+
+	LOG(INFO) << "Deleting kernel device memory";
+	if (d_image == nullptr) LOG(WARNING) << "Attempting to free after free device memory";
+
 	cudaFree(d_image);
 	d_image = nullptr;
-	std::cout << "deletion finished.\n";
+
+	LOG(INFO) << "deletion finished";
 }

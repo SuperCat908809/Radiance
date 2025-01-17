@@ -2,13 +2,14 @@
 #include <cuda_runtime_api.h>
 
 #include <stb/stb_image_write.h>
+#include <easylogging/easylogging++.h>
 
 #include "main_Kernel.h"
 
 
 int main() {
 
-	std::cout << "Main start.\n";
+	LOG(INFO) << "Main application start";
 
 	int width = 1920;
 	int height = 1080;
@@ -31,7 +32,7 @@ int main() {
 
 	cudaDeviceReset();
 
-	std::cout << "\n\nFinished.\n";
+	LOG(INFO) << "Main application finished";
 
 	return 0;
 }
