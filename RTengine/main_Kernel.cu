@@ -33,6 +33,29 @@ __global__ void kernel(int width, int height, glm::vec3* image) {
 	image[gid][2] = b;
 }
 
+Renderer_cu::Renderer_cu(Renderer_cu&& o) {
+	width = o.width;
+	height = o.width;
+	d_image = o.d_image;
+
+	o.d_image = nullptr;
+}
+Renderer_cu& Renderer_cu::operator=(Renderer_cu&& o) {
+
+	LOG(INFO) << "Renderer_cu::operator=(Renderer_cu&&) ==> Freeing device memory.";
+	cudaFree(d_image);
+	d_image = nullptr;
+	LOG(INFO) << "Renderer_cu::operator=(Renderer_cu&&) ==> memory freed.";
+
+	width = o.width;
+	height = o.height;
+	d_image = o.d_image;
+
+	o.d_image = nullptr;
+
+	return *this;	
+}
+
 Renderer_cu::Renderer_cu(int width, int height) : width(width), height(height) {
 	assert(width > 0 && height > 0);
 
@@ -40,6 +63,17 @@ Renderer_cu::Renderer_cu(int width, int height) : width(width), height(height) {
 	LOG(INFO) << "Renderer_cu::Renderer_cu ==> Allocating " << kb_allocated << "KB for a " << width << "x" << height << " image on device";
 	cudaMalloc((void**)&d_image, width * height * sizeof(glm::vec3));
 	LOG(INFO) << "Renderer_cu::Renderer_cu ==> allocation finished";
+}
+
+Renderer_cu::~Renderer_cu() {
+
+	LOG(INFO) << "Renderer_cu::~Renderer_cu ==> Deleting kernel device memory.";
+	if (d_image == nullptr) LOG(INFO) << "Renderer_cu::~Renderer_cu ==> d_image has already been deleted.";
+
+	cudaFree(d_image);
+	d_image = nullptr;
+
+	LOG(INFO) << "Renderer_cu::~Renderer_cu ==> deletion finished.";
 }
 
 void Renderer_cu::Run() {
@@ -65,15 +99,4 @@ std::vector<glm::vec3> Renderer_cu::Download() {
 	LOG(INFO) << "Renderer_cu::Download ==> download done";
 
 	return h_image;
-}
-
-void Renderer_cu::Delete() {
-
-	LOG(INFO) << "Renderer_cu::Delete ==> Deleting kernel device memory";
-	if (d_image == nullptr) LOG(WARNING) << "Renderer_cu::Delete ==> Attempting to free after free device memory";
-
-	cudaFree(d_image);
-	d_image = nullptr;
-
-	LOG(INFO) << "Renderer_cu::Delete ==> deletion finished";
 }
