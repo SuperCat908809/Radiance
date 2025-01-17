@@ -60,9 +60,9 @@ Renderer_cu::Renderer_cu(int width, int height) : width(width), height(height) {
 	assert(width > 0 && height > 0);
 
 	int kb_allocated = width * height * sizeof(glm::vec3) / 1000;
-	LOG(INFO) << "Renderer_cu::Renderer_cu ==> Allocating " << kb_allocated << "KB for a " << width << "x" << height << " image on device";
+	LOG(INFO) << "Renderer_cu::Renderer_cu ==> Allocating " << kb_allocated << "KB for a " << width << "x" << height << " image on device.";
 	cudaMalloc((void**)&d_image, width * height * sizeof(glm::vec3));
-	LOG(INFO) << "Renderer_cu::Renderer_cu ==> allocation finished";
+	LOG(INFO) << "Renderer_cu::Renderer_cu ==> allocation finished.";
 }
 
 Renderer_cu::~Renderer_cu() {
@@ -85,18 +85,18 @@ void Renderer_cu::Run() {
 	blocks.y = (height + threads.y - 1) / threads.y;
 	blocks.z = 1;
 
-	LOG(INFO) << "Renderer_cu::Run ==> Launching render kernel with grid dimensions " << blocks.x << "x" << blocks.y << " : " << threads.x << "x" << threads.y;
+	LOG(INFO) << "Renderer_cu::Run ==> Launching render kernel with grid dimensions " << blocks.x << "x" << blocks.y << " : " << threads.x << "x" << threads.y << ".";
 	kernel<<<blocks, threads>>>(width, height, d_image);
 	cudaDeviceSynchronize();
-	LOG(INFO) << "Renderer_cu::Run ==> kernel finished";
+	LOG(INFO) << "Renderer_cu::Run ==> kernel finished.";
 }
 
 std::vector<glm::vec3> Renderer_cu::Download() {
 
-	LOG(INFO) << "Renderer_cu::Download ==> Downloading kernel image from device";
+	LOG(INFO) << "Renderer_cu::Download ==> Downloading kernel image from device.";
 	std::vector<glm::vec3> h_image(width * height, glm::vec3(0.0f));
 	cudaMemcpy((glm::vec3*)h_image.data(), d_image, width * height * sizeof(glm::vec3), cudaMemcpyDeviceToHost);
-	LOG(INFO) << "Renderer_cu::Download ==> download done";
+	LOG(INFO) << "Renderer_cu::Download ==> download done.";
 
 	return h_image;
 }
