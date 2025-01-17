@@ -156,8 +156,9 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\easylogging\easylogging++.cc" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="stb.cpp" />
+    <ClCompile Include="header_library_impl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main_Kernel.cu" />
