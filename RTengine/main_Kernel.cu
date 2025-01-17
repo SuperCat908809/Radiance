@@ -12,11 +12,14 @@
 
 
 __global__ void kernel(int width, int height, glm::vec3* image) {
-	int gid = blockDim.x * blockIdx.x + threadIdx.x;
-	if (gid >= width * height) return;
+	int gidx = blockDim.x * blockIdx.x + threadIdx.x;
+	int gidy = blockDim.y * blockIdx.y + threadIdx.y;
+	if (gidx >= width || gidy >= height) return;
 
-	int y = gid / width;
-	int x = gid % width;
+	int gid = gidy * width + gidx;
+
+	int y = gidy;
+	int x = gidx;
 
 	float r = x / (width - 1.0f);
 	float g = y / (height - 1.0f);
@@ -30,17 +33,22 @@ __global__ void kernel(int width, int height, glm::vec3* image) {
 Renderer_cu::Renderer_cu(int width, int height) : width(width), height(height) {
 	assert(width > 0 && height > 0);
 
-	LOG(INFO) << "Renderer_cu::Renderer_cu ==> Allocating memory for a " << width << "x" << height << " image on device";
+	int kb_allocated = width * height * sizeof(glm::vec3) / 1000;
+	LOG(INFO) << "Renderer_cu::Renderer_cu ==> Allocating " << kb_allocated << "KB for a " << width << "x" << height << " image on device";
 	cudaMalloc((void**)&d_image, width * height * sizeof(glm::vec3));
 	LOG(INFO) << "Renderer_cu::Renderer_cu ==> allocation finished";
 }
 
 void Renderer_cu::Run() {
 
-	int threads = 32;
-	int blocks = (width * height + threads - 1) / threads;
+	dim3 threads = { 8,8,1 };
+	//int blocks = (width * height + threads - 1) / threads;
+	dim3 blocks{};
+	blocks.x = (width + threads.x - 1) / threads.x;
+	blocks.y = (height + threads.y - 1) / threads.y;
+	blocks.z = 1;
 
-	LOG(INFO) << "Renderer_cu::Run ==> Launching render kernel";
+	LOG(INFO) << "Renderer_cu::Run ==> Launching render kernel with grid dimensions " << blocks.x << "x" << blocks.y << " : " << threads.x << "x" << threads.y;
 	kernel<<<blocks, threads>>>(width, height, d_image);
 	cudaDeviceSynchronize();
 	LOG(INFO) << "Renderer_cu::Run ==> kernel finished";
