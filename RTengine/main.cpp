@@ -9,7 +9,7 @@
 
 int main() {
 
-	LOG(INFO) << "Main application start";
+	LOG(INFO) << "main ==> Main application start";
 
 	int width = 1920;
 	int height = 1080;
@@ -32,7 +32,7 @@ int main() {
 
 	cudaDeviceReset();
 
-	LOG(INFO) << "Main application finished";
+	LOG(INFO) << "main ==> Main application finished";
 
 	return 0;
 }

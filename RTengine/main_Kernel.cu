@@ -1,6 +1,7 @@
 #include "main_Kernel.h"
 
 #include <iostream>
+#include <cassert>
 
 #include <stb/stb_image_write.h>
 #include <glm/glm.hpp>
@@ -27,9 +28,11 @@ __global__ void kernel(int width, int height, glm::vec3* image) {
 }
 
 Renderer_cu::Renderer_cu(int width, int height) : width(width), height(height) {
-	LOG(INFO) << "Allocating image memory on device";
+	assert(width > 0 && height > 0);
+
+	LOG(INFO) << "Renderer_cu::Renderer_cu ==> Allocating memory for a " << width << "x" << height << " image on device";
 	cudaMalloc((void**)&d_image, width * height * sizeof(glm::vec3));
-	LOG(INFO) << "allocation finished";
+	LOG(INFO) << "Renderer_cu::Renderer_cu ==> allocation finished";
 }
 
 void Renderer_cu::Run() {
@@ -37,29 +40,29 @@ void Renderer_cu::Run() {
 	int threads = 32;
 	int blocks = (width * height + threads - 1) / threads;
 
-	LOG(INFO) << "Launching render kernel";
+	LOG(INFO) << "Renderer_cu::Run ==> Launching render kernel";
 	kernel<<<blocks, threads>>>(width, height, d_image);
 	cudaDeviceSynchronize();
-	LOG(INFO) << "kernel finished";
+	LOG(INFO) << "Renderer_cu::Run ==> kernel finished";
 }
 
 std::vector<glm::vec3> Renderer_cu::Download() {
 
-	LOG(INFO) << "Downloading kernel image from device";
+	LOG(INFO) << "Renderer_cu::Download ==> Downloading kernel image from device";
 	std::vector<glm::vec3> h_image(width * height, glm::vec3(0.0f));
 	cudaMemcpy((glm::vec3*)h_image.data(), d_image, width * height * sizeof(glm::vec3), cudaMemcpyDeviceToHost);
-	LOG(INFO) << "download done";
+	LOG(INFO) << "Renderer_cu::Download ==> download done";
 
 	return h_image;
 }
 
 void Renderer_cu::Delete() {
 
-	LOG(INFO) << "Deleting kernel device memory";
-	if (d_image == nullptr) LOG(WARNING) << "Attempting to free after free device memory";
+	LOG(INFO) << "Renderer_cu::Delete ==> Deleting kernel device memory";
+	if (d_image == nullptr) LOG(WARNING) << "Renderer_cu::Delete ==> Attempting to free after free device memory";
 
 	cudaFree(d_image);
 	d_image = nullptr;
 
-	LOG(INFO) << "deletion finished";
+	LOG(INFO) << "Renderer_cu::Delete ==> deletion finished";
 }
