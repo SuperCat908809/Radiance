@@ -10,6 +10,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
+#define RT_ENGINE_IMPLEMENTATION 1
+#include "ray.h"
+
 
 __global__ void kernel(int width, int height, glm::vec3* image) {
 	int gidx = blockDim.x * blockIdx.x + threadIdx.x;

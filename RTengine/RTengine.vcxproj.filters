@@ -10,5 +10,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_Kernel.h" />
+    <ClInclude Include="ray.h">
+      <Filter>rt_engine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="rt_engine">
+      <UniqueIdentifier>{a958057b-8800-42a5-902e-6c7e81595fa8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
