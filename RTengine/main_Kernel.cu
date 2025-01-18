@@ -1,16 +1,16 @@
-#include "main_Kernel.h"
-
-#include <iostream>
-#include <cassert>
-
-#include <stb/stb_image_write.h>
-#include <glm/glm.hpp>
-#include <easylogging/easylogging++.h>
-
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-#define RT_ENGINE_IMPLEMENTATION 1
+#include <iostream>
+
+#include <glm/glm.hpp>
+#include <stb/stb_image_write.h>
+#include <easylogging/easylogging++.h>
+
+#include "cuError.h"
+
+#define RT_ENGINE_IMPLEMENTATION
+#include "main_Kernel.h"
 #include "ray.h"
 
 
@@ -43,7 +43,7 @@ Renderer_cu::Renderer_cu(Renderer_cu&& o) {
 Renderer_cu& Renderer_cu::operator=(Renderer_cu&& o) {
 
 	LOG(INFO) << "Renderer_cu::operator=(Renderer_cu&&) ==> Freeing device memory.";
-	cudaFree(d_image);
+	CUDA_ASSERT(cudaFree(d_image));
 	d_image = nullptr;
 	LOG(INFO) << "Renderer_cu::operator=(Renderer_cu&&) ==> memory freed.";
 
@@ -61,7 +61,7 @@ Renderer_cu::Renderer_cu(int width, int height) : width(width), height(height) {
 
 	int kb_allocated = width * height * sizeof(glm::vec3) / 1000;
 	LOG(INFO) << "Renderer_cu::Renderer_cu ==> Allocating " << kb_allocated << "KB for a " << width << "x" << height << " image on device.";
-	cudaMalloc((void**)&d_image, width * height * sizeof(glm::vec3));
+	CUDA_ASSERT(cudaMalloc((void**)&d_image, width * height * sizeof(glm::vec3)));
 	LOG(INFO) << "Renderer_cu::Renderer_cu ==> allocation finished.";
 }
 
@@ -70,7 +70,7 @@ Renderer_cu::~Renderer_cu() {
 	LOG(INFO) << "Renderer_cu::~Renderer_cu ==> Deleting kernel device memory.";
 	if (d_image == nullptr) LOG(INFO) << "Renderer_cu::~Renderer_cu ==> d_image has already been deleted.";
 
-	cudaFree(d_image);
+	CUDA_ASSERT(cudaFree(d_image));
 	d_image = nullptr;
 
 	LOG(INFO) << "Renderer_cu::~Renderer_cu ==> deletion finished.";
@@ -87,7 +87,8 @@ void Renderer_cu::Run() {
 
 	LOG(INFO) << "Renderer_cu::Run ==> Launching render kernel with grid dimensions " << blocks.x << "x" << blocks.y << " : " << threads.x << "x" << threads.y << ".";
 	kernel<<<blocks, threads>>>(width, height, d_image);
-	cudaDeviceSynchronize();
+	CUDA_ASSERT(cudaGetLastError());
+	CUDA_ASSERT(cudaDeviceSynchronize());
 	LOG(INFO) << "Renderer_cu::Run ==> kernel finished.";
 }
 
@@ -95,7 +96,7 @@ std::vector<glm::vec3> Renderer_cu::Download() {
 
 	LOG(INFO) << "Renderer_cu::Download ==> Downloading kernel image from device.";
 	std::vector<glm::vec3> h_image(width * height, glm::vec3(0.0f));
-	cudaMemcpy((glm::vec3*)h_image.data(), d_image, width * height * sizeof(glm::vec3), cudaMemcpyDeviceToHost);
+	CUDA_ASSERT(cudaMemcpy((glm::vec3*)h_image.data(), d_image, width * height * sizeof(glm::vec3), cudaMemcpyDeviceToHost));
 	LOG(INFO) << "Renderer_cu::Download ==> download done.";
 
 	return h_image;
