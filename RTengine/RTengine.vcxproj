@@ -166,6 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="cuda_timer.h" />
     <ClInclude Include="cuError.h" />
     <ClInclude Include="main_Kernel.h" />
     <ClInclude Include="ray.h" />

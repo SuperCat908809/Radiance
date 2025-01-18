@@ -17,6 +17,7 @@
     <ClInclude Include="cuError.h" />
     <ClInclude Include="renderbuffer.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="cuda_timer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rt_engine">
