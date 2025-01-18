@@ -20,7 +20,8 @@ int main() {
 		Renderer kernel(width, height);
 
 		kernel.Run();
-		auto float_image = kernel.Download();
+		std::vector<glm::vec3> float_image(width * height);
+		kernel.getRenderbuffer().Download(float_image);
 
 		std::vector<glm::u8vec3> image(float_image.size());
 

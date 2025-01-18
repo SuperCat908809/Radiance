@@ -4,12 +4,13 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include "renderbuffer.h"
+
 
 namespace RT_ENGINE {
 class Renderer {
 
-	int width, height;
-	glm::vec3* d_image;
+	ColorRenderbuffer renderbuffer;
 
 	Renderer(const Renderer&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
@@ -22,8 +23,9 @@ public:
 	Renderer(int width, int height);
 	~Renderer();
 
+	const ColorRenderbuffer& getRenderbuffer() const { return renderbuffer; }
+
 	void Run();
-	std::vector<glm::vec3> Download();
 
 }; // class Renderer //
 } // namespace RT_ENGINE //
