@@ -17,11 +17,11 @@ int main() {
 	int height = 1080;
 
 	{
-		Renderer kernel(width, height);
+		Renderer renderer(width, height);
 
-		kernel.Run();
+		renderer.Run();
 		std::vector<glm::vec3> float_image(width * height);
-		kernel.getRenderbuffer().Download(float_image);
+		renderer.getRenderbuffer().Download(float_image);
 
 		std::vector<glm::u8vec3> image(float_image.size());
 
