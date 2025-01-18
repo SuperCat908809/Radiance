@@ -4,6 +4,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="header_library_impl.cpp" />
     <ClCompile Include="..\include\easylogging\easylogging++.cc" />
+    <ClCompile Include="renderbuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main_Kernel.cu" />
@@ -14,6 +15,7 @@
       <Filter>rt_engine</Filter>
     </ClInclude>
     <ClInclude Include="cuError.h" />
+    <ClInclude Include="renderbuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rt_engine">
