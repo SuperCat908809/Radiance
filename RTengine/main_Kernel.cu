@@ -18,6 +18,19 @@
 
 namespace RT_ENGINE {
 
+__device__ bool hit_sphere(ray r){
+	glm::vec3 o(0, 0, 0);
+	float radius = 1.0f;
+	glm::vec3 oc = r.o - o;
+
+	float a = glm::dot(r.d, r.d);
+	float hb = glm::dot(r.d, oc);
+	float c = glm::dot(oc, oc) - radius * radius;
+	float d = hb * hb - a * c;
+
+	return d > 0;
+}
+
 __global__ void kernel(ColorRenderbuffer::handle_cu renderbuffer_handle, Camera_cu cam) {
 
 	int gidx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -29,9 +42,15 @@ __global__ void kernel(ColorRenderbuffer::handle_cu renderbuffer_handle, Camera_
 
 	ray r = cam.sample(u, v);
 
-	float t = glm::normalize(r.d).y * 0.5f + 0.5f;
-	glm::vec3 c = (1 - t) * glm::vec3(0.1f, 0.2f, 0.4f) + t * glm::vec3(1, 1, 1);
+	glm::vec3 c{};
 
+	if (hit_sphere(r)) {
+		c = glm::vec3(1, 0, 0);	
+	}
+	else {
+		float t = glm::normalize(r.d).y * 0.5f + 0.5f;
+		c = (1 - t) * glm::vec3(0.1f, 0.2f, 0.4f) + t * glm::vec3(1, 1, 1);
+	}
 	renderbuffer_handle.at(gidx, gidy) = c;
 }
 
