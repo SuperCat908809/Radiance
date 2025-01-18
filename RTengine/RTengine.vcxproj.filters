@@ -18,6 +18,7 @@
     <ClInclude Include="renderbuffer.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="cuda_timer.h" />
+    <ClInclude Include="host_timer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rt_engine">

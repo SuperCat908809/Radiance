@@ -168,6 +168,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="cuda_timer.h" />
     <ClInclude Include="cuError.h" />
+    <ClInclude Include="host_timer.h" />
     <ClInclude Include="main_Kernel.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="renderbuffer.h" />

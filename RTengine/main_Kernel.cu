@@ -16,6 +16,7 @@
 #include "camera.h"
 
 #include "cuda_timer.h"
+#include "host_timer.h"
 
 
 namespace RT_ENGINE {
@@ -79,6 +80,7 @@ void Renderer::Run() {
 	Camera_cu cam(lookfrom, lookat, up, vfov, aspect_ratio);
 
 	CudaTimer render_kernel_timer{};
+	HostTimer render_host_timer{};
 
 	dim3 threads = { 8,8,1 };
 	dim3 blocks{};
@@ -88,12 +90,14 @@ void Renderer::Run() {
 
 	LOG(INFO) << "Renderer::Run ==> Launching render kernel with grid dimensions " << blocks.x << "x" << blocks.y << " : " << threads.x << "x" << threads.y << ".";
 	render_kernel_timer.Start();
+	render_host_timer.Start();
 	kernel<<<blocks, threads>>>(renderbuffer.getDeviceHandle(), cam);
+	render_host_timer.End();
 	render_kernel_timer.End();
 	CUDA_ASSERT(cudaGetLastError());
 	CUDA_ASSERT(cudaDeviceSynchronize());
 
-	LOG(INFO) << "Renderer::Run ==> kernel finished in " << render_kernel_timer.ElapsedTime() << "ms.";
+	LOG(INFO) << "Renderer::Run ==> kernel finished in " << render_host_timer.ElapsedTimeMS() << "ms on host and " << render_kernel_timer.ElapsedTimeMS() << "ms on device.";
 }
 
 } // namespace RT_ENGINE //
