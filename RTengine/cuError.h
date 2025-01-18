@@ -7,6 +7,8 @@
 
 #include <cuda_runtime_api.h>
 
+#include "easylogging/easylogging++.h"
+
 
 bool cuIsError(cudaError_t code);
 std::string cuFormatErrorMessage(cudaError_t code);
