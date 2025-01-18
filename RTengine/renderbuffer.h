@@ -46,4 +46,4 @@ __device__ glm::vec3& ColorRenderbuffer::handle_cu::at(int idx) { return d_image
 #endif // ifdef RT_ENGINE_IMPLEMENTATION //
 
 } // namespace RT_ENGINE //
-#endif // define RENDERBUFFER_CLASS_CUDA_H //
+#endif // ifndef RENDERBUFFER_CLASS_CUDA_H //

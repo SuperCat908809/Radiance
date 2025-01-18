@@ -30,4 +30,4 @@ public:
 }; // class Renderer //
 } // namespace RT_ENGINE //
 
-#endif // define MAIN_KERNEL_H //
+#endif // ifndef MAIN_KERNEL_H //
