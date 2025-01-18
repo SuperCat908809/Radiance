@@ -13,15 +13,18 @@ class Renderer_cu {
 
 	Renderer_cu(const Renderer_cu&) = delete;
 	Renderer_cu& operator=(const Renderer_cu&) = delete;
+	
+public:
+
 	Renderer_cu(Renderer_cu&&);
 	Renderer_cu& operator=(Renderer_cu&&);
 
-public:
 	Renderer_cu(int width, int height);
 	~Renderer_cu();
 
 	void Run();
 	std::vector<glm::vec3> Download();
+
 }; // class Renderer_cu //
 } // namespace RT_ENGINE //
 
