@@ -9,3 +9,6 @@
 
 #include <easylogging/easylogging++.h>
 INITIALIZE_EASYLOGGINGPP
+
+#define CUDA_ERROR_IMPLEMENTATION
+#include "cuError.h"

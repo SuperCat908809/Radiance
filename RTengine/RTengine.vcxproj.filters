@@ -13,6 +13,7 @@
     <ClInclude Include="ray.h">
       <Filter>rt_engine</Filter>
     </ClInclude>
+    <ClInclude Include="cuError.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rt_engine">
