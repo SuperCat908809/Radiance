@@ -29,7 +29,7 @@ public:
 		// viewport dimensions are halfed here because the uv inputs are in the range [-1, 1].
 	}
 
-	__host__ __device__ ray sample(float u, float v) const {
+	__device__ ray sample(float u, float v) const {
 		glm::vec3 d = forward + horizontal * u + vertical * v;
 		return ray(origin, d);
 	}
