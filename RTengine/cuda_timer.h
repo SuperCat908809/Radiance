@@ -1,7 +1,9 @@
 #ifndef CUDA_TIMER_CLASS_H
 #define CUDA_TIMER_CLASS_H
 
+#include <cassert>
 #include <cuda_runtime_api.h>
+
 #include "cuError.h"
 
 
@@ -64,7 +66,7 @@ public:
 		finished = true;
 	}
 
-	float ElapsedTime() {
+	float ElapsedTimeMS() {
 		assert(finished == true);
 		if (ms == -1.0f) {
 			CUDA_ASSERT(cudaEventSynchronize(end));
