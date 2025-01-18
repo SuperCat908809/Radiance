@@ -23,16 +23,17 @@ __global__ void kernel(int width, int height, glm::vec3* image) {
 
 	int gid = gidy * width + gidx;
 
-	int y = gidy;
-	int x = gidx;
+	float u = (gidx / (width - 1.0f)) * 2.0f - 1.0f;
+	float v = (gidy / (height - 1.0f)) * 2.0f - 1.0f;
 
-	float r = x / (width - 1.0f);
-	float g = y / (height - 1.0f);
-	float b = (r + g) / 2.0f;
+	ray r(glm::vec3(0, 0, -4), glm::vec3(0, 0, 1));
 
-	image[gid][0] = r;
-	image[gid][1] = g;
-	image[gid][2] = b;
+	r.d += u * glm::vec3(1, 0, 0) + v * glm::vec3(0, 1, 0);
+
+	float t = glm::normalize(r.d).y * 0.5f + 0.5f;
+	glm::vec3 c = (1 - t) * glm::vec3(0.1f, 0.2f, 0.4f) + t * glm::vec3(1, 1, 1);
+
+	image[gid] = c;
 }
 
 Renderer_cu::Renderer_cu(Renderer_cu&& o) {
