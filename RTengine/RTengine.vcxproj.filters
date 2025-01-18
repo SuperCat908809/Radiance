@@ -16,6 +16,7 @@
     </ClInclude>
     <ClInclude Include="cuError.h" />
     <ClInclude Include="renderbuffer.h" />
+    <ClInclude Include="camera.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rt_engine">

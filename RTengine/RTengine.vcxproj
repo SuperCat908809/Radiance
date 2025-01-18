@@ -165,6 +165,7 @@
     <CudaCompile Include="main_Kernel.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera.h" />
     <ClInclude Include="cuError.h" />
     <ClInclude Include="main_Kernel.h" />
     <ClInclude Include="ray.h" />
