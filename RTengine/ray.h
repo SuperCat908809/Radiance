@@ -8,9 +8,9 @@
 namespace RT_ENGINE {
 
 struct ray {
-	union {
-		struct { glm::vec3 o, d; };
-		struct { glm::vec3 origin, direction; };
+	struct {
+		union { glm::vec3 o, origin; };
+		union { glm::vec3 d, direction; };
 	};
 
 	__device__ ray();
