@@ -2,6 +2,9 @@
 #define CUDA_UTILITIES_H
 
 #include <string>
+#include <assert.h>
+#include <stdexcept>
+
 #include <cuda_runtime_api.h>
 
 
@@ -19,12 +22,7 @@ std::string cuFormatErrorMessage(cudaError_t code);
 #ifdef CUDA_ERROR_IMPLEMENTATION
 
 #include <sstream>
-#include <format>
-#include <cassert>
-#include <stdlib.h>
-#include <iostream>
-#include <stdexcept>
-
+#include <assert.h>
 
 bool cuIsError(cudaError_t code) { return code != cudaSuccess; }
 

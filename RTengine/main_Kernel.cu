@@ -11,6 +11,7 @@
 
 #define RT_ENGINE_IMPLEMENTATION
 #include "main_Kernel.h"
+#include "renderbuffer.h"
 #include "ray.h"
 
 
@@ -37,7 +38,7 @@ __global__ void kernel(ColorRenderbuffer::handle_cu renderbuffer_handle) {
 	float t = glm::normalize(r.d).y * 0.5f + 0.5f;
 	glm::vec3 c = (1 - t) * glm::vec3(0.1f, 0.2f, 0.4f) + t * glm::vec3(1, 1, 1);
 
-	renderbuffer_handle.d_image[gid] = c;
+	renderbuffer_handle.at(gid) = c;
 }
 
 Renderer::Renderer(Renderer&& o) : renderbuffer(std::move(o.renderbuffer)) {}
