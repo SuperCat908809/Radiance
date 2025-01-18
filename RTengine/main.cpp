@@ -17,7 +17,7 @@ int main() {
 	int height = 1080;
 
 	{
-		Renderer_cu kernel(width, height);
+		Renderer kernel(width, height);
 
 		kernel.Run();
 		auto float_image = kernel.Download();

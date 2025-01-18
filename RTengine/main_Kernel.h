@@ -6,26 +6,26 @@
 
 
 namespace RT_ENGINE {
-class Renderer_cu {
+class Renderer {
 
 	int width, height;
 	glm::vec3* d_image;
 
-	Renderer_cu(const Renderer_cu&) = delete;
-	Renderer_cu& operator=(const Renderer_cu&) = delete;
+	Renderer(const Renderer&) = delete;
+	Renderer& operator=(const Renderer&) = delete;
 	
 public:
 
-	Renderer_cu(Renderer_cu&&);
-	Renderer_cu& operator=(Renderer_cu&&);
+	Renderer(Renderer&&);
+	Renderer& operator=(Renderer&&);
 
-	Renderer_cu(int width, int height);
-	~Renderer_cu();
+	Renderer(int width, int height);
+	~Renderer();
 
 	void Run();
 	std::vector<glm::vec3> Download();
 
-}; // class Renderer_cu //
+}; // class Renderer //
 } // namespace RT_ENGINE //
 
 #endif // define MAIN_KERNEL_H //
