@@ -7,6 +7,8 @@
 #include "main_Kernel.h"
 
 
+using namespace RT_ENGINE;
+
 int main() {
 
 	LOG(INFO) << "main ==> Main application start";

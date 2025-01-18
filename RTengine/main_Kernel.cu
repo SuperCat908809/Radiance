@@ -14,6 +14,8 @@
 #include "ray.h"
 
 
+namespace RT_ENGINE {
+
 __global__ void kernel(int width, int height, glm::vec3* image) {
 	int gidx = blockDim.x * blockIdx.x + threadIdx.x;
 	int gidy = blockDim.y * blockIdx.y + threadIdx.y;
@@ -79,7 +81,6 @@ Renderer_cu::~Renderer_cu() {
 void Renderer_cu::Run() {
 
 	dim3 threads = { 8,8,1 };
-	//int blocks = (width * height + threads - 1) / threads;
 	dim3 blocks{};
 	blocks.x = (width + threads.x - 1) / threads.x;
 	blocks.y = (height + threads.y - 1) / threads.y;
@@ -101,3 +102,5 @@ std::vector<glm::vec3> Renderer_cu::Download() {
 
 	return h_image;
 }
+
+} // namespace RT_ENGINE //

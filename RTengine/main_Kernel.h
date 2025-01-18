@@ -1,12 +1,11 @@
 #ifndef MAIN_KERNEL_H
 #define MAIN_KERNEL_H
 
-#include <inttypes.h>
 #include <vector>
-
 #include <glm/glm.hpp>
 
 
+namespace RT_ENGINE {
 class Renderer_cu {
 
 	int width, height;
@@ -23,6 +22,7 @@ public:
 
 	void Run();
 	std::vector<glm::vec3> Download();
-};
+}; // class Renderer_cu //
+} // namespace RT_ENGINE //
 
-#endif // MAIN_KERNEL_H //
+#endif // define MAIN_KERNEL_H //
