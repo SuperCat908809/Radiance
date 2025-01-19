@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/rotate_vector.hpp>
 
 #include "renderbuffer.h"
 
@@ -28,7 +30,7 @@ public:
 
 	const ColorRenderbuffer& getRenderbuffer() const { return renderbuffer; }
 
-	void Run();
+	void Run(float t);
 
 }; // class Renderer //
 
@@ -95,9 +97,10 @@ __global__ void kernel(ColorRenderbuffer::handle_cu renderbuffer_handle, Scene::
 
 } // kernel //
 
-void Renderer::Run() {
+void Renderer::Run(float t) {
 
 	glm::vec3 lookfrom(0, 0, -18);
+	lookfrom = glm::rotate(lookfrom, t, glm::vec3(0, 1, 0));
 	glm::vec3 lookat(0, 0, 0);
 	glm::vec3 up(0, 1, 0);
 	float vfov = glm::radians(36.0f);

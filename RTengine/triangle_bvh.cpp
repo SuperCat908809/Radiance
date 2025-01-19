@@ -90,6 +90,15 @@ TriangleBVH::TriangleBVH(int tri_count, int seed) : tri_count(tri_count) {
 
 	bvh_construction_timer.End();
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> BVH built in " << bvh_construction_timer.ElapsedTimeMS() << "ms.";
+
+	for (int i = 0; i < nodes.size(); i++) {
+		BVHNode node = nodes[i];
+		if (node.triCount != 0) {
+			assert(node.leftFirst >= 0 && node.leftFirst <= tri_count);
+			assert(node.leftFirst + node.triCount >= 0 && node.leftFirst + node.triCount <= tri_count);
+		}
+	}
+
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> Copying BVH data to device.";
 
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> Allocating " << nodes_used * sizeof(BVHNode) / 1000 << "KB for BVH nodes.";
@@ -115,37 +124,40 @@ void TriangleBVH::_updateNodeBounds(std::vector<BVHNode>& nodes, std::vector<Tri
 	node.aabbMin = glm::vec3(1e30f);
 	node.aabbMax = glm::vec3(-1e30f);
 
-	for (int first = node.leftFirst, i = 0; i < node.triCount; i++) {
-		int triIdx = indices[first + i];
-		Tri& leafTri = triangles[triIdx];
+	for (int i = 0; i < node.triCount; i++) {
+		int triIdx = indices[node.leftFirst + i];
+		const Tri& leafTri = triangles[triIdx];
+
 		node.aabbMin = glm::min(node.aabbMin, leafTri.v0);
 		node.aabbMin = glm::min(node.aabbMin, leafTri.v1);
 		node.aabbMin = glm::min(node.aabbMin, leafTri.v2);
-		node.aabbMax = glm::max(node.aabbMin, leafTri.v0);
-		node.aabbMax = glm::max(node.aabbMin, leafTri.v1);
-		node.aabbMax = glm::max(node.aabbMin, leafTri.v2);
+
+		node.aabbMax = glm::max(node.aabbMax, leafTri.v0);
+		node.aabbMax = glm::max(node.aabbMax, leafTri.v1);
+		node.aabbMax = glm::max(node.aabbMax, leafTri.v2);
 	}
 }
 
 void TriangleBVH::_subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& triangles, std::vector<int> indices, int idx) {
+#if 1
 	BVHNode& node = nodes[idx];
 	if (node.triCount <= 2) return;
 
 	glm::vec3 extent = node.aabbMax - node.aabbMin;
 	int axis = 0;
 	if (extent.y > extent.x) axis = 1;
-	if (extent.z > extent[axis])axis = 2;
-	float splitPos = node.aabbMax[axis] + extent[axis] * 0.5f;
+	if (extent.z > extent[axis]) axis = 2;
+	float splitPos = node.aabbMin[axis] + extent[axis] * 0.5f;
 
 	int i = node.leftFirst;
-	int j = i + node.triCount - 1;
+	int j = node.leftFirst + node.triCount - 1;
 
 	while (i <= j) {
-		if (triangles[i].centeroid[axis] < splitPos) {
+		if (triangles[indices[i]].centeroid[axis] < splitPos) {
 			i++;
 		}
 		else {
-			std::swap(triangles[i], triangles[j--]);
+			std::swap(indices[i], indices[j--]);
 		}
 	}
 
@@ -155,21 +167,63 @@ void TriangleBVH::_subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& tria
 	// create child nodes
 	int leftChildIdx = nodes_used++;
 	int rightChildIdx = nodes_used++;
-	node.leftFirst = leftChildIdx;
 	BVHNode left_node{}, right_node{};
 	left_node.leftFirst = node.leftFirst;
 	left_node.triCount = leftCount;
 	right_node.leftFirst = i;
 	right_node.triCount = node.triCount - leftCount;
+	node.leftFirst = leftChildIdx;
 	node.triCount = 0;
 
 	nodes.push_back(left_node);
 	nodes.push_back(right_node);
-	nodes_used += 2;
 
 	_updateNodeBounds(nodes, triangles, indices, leftChildIdx);
 	_updateNodeBounds(nodes, triangles, indices, rightChildIdx);
 
 	_subdivide(nodes, triangles, indices, leftChildIdx);
 	_subdivide(nodes, triangles, indices, rightChildIdx);
+#else
+	// terminate recursion
+	BVHNode& node = nodes[idx];
+	if (node.triCount <= 2) return;
+	// determine split axis and position
+	glm::vec3 extent = node.aabbMax - node.aabbMin;
+	int axis = 0;
+	if (extent.y > extent.x) axis = 1;
+	if (extent.z > extent[axis]) axis = 2;
+	float splitPos = node.aabbMin[axis] + extent[axis] * 0.5f;
+	// in-place partition
+	int i = node.leftFirst;
+	int j = i + node.triCount - 1;
+	while (i <= j)
+	{
+		if (triangles[indices[i]].centeroid[axis] < splitPos)
+			i++;
+		else
+			std::swap(indices[i], indices[j--]);
+	}
+	// abort split if one of the sides is empty
+	int leftCount = i - node.leftFirst;
+	if (leftCount == 0 || leftCount == node.triCount) return;
+	// create child nodes
+	int leftChildIdx = nodes_used++;
+	int rightChildIdx = nodes_used++;
+	BVHNode left{}, right{};
+	left.leftFirst = node.leftFirst;
+	left.triCount = leftCount;
+	right.leftFirst = i;
+	right.triCount = node.triCount - leftCount;
+	node.leftFirst = leftChildIdx;
+	node.triCount = 0;
+
+	nodes.push_back(left);
+	nodes.push_back(right);
+
+	_updateNodeBounds(nodes, triangles, indices, leftChildIdx);
+	_updateNodeBounds(nodes, triangles, indices, rightChildIdx);
+	// recurse
+	_subdivide(nodes, triangles, indices, leftChildIdx);
+	_subdivide(nodes, triangles, indices, rightChildIdx);
+#endif
 }
