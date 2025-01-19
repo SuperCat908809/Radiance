@@ -14,6 +14,9 @@
     <ClCompile Include="header_library_impl.cpp">
       <Filter>libraries</Filter>
     </ClCompile>
+    <ClCompile Include="triangle_bvh.cpp">
+      <Filter>rt_engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ray.h">
@@ -44,6 +47,9 @@
       <Filter>utilities</Filter>
     </ClInclude>
     <ClInclude Include="triangles.h">
+      <Filter>rt_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="triangle_bvh.h">
       <Filter>rt_engine</Filter>
     </ClInclude>
   </ItemGroup>
