@@ -47,6 +47,7 @@ public:
 
 #include "ray.h"
 #include "camera.h"
+#include "scene.h"
 
 namespace RT_ENGINE {
 
@@ -65,7 +66,7 @@ __device__ bool hit_sphere(ray r) {
 
 } // hit_sphere //
 
-__global__ void kernel(ColorRenderbuffer::handle_cu renderbuffer_handle, Camera_cu cam) {
+__global__ void kernel(ColorRenderbuffer::handle_cu renderbuffer_handle, Scene::handle_cu scene_handle, Camera_cu cam) {
 
 	int gidx = blockDim.x * blockIdx.x + threadIdx.x;
 	int gidy = blockDim.y * blockIdx.y + threadIdx.y;
@@ -78,8 +79,17 @@ __global__ void kernel(ColorRenderbuffer::handle_cu renderbuffer_handle, Camera_
 
 	glm::vec3 c{};
 
-	if (hit_sphere(r)) {
-		c = glm::vec3(1, 0, 0);	
+	TraceRecord rec{};
+	rec.t = 1e9f;
+
+	for (int i = 0; i < scene_handle.tri_count; i++) {
+		intersect_tri(r, rec, scene_handle.d_tris[i]);
+	}
+
+	if (rec.t < 1e9f) {
+		//c = glm::vec3(1, 1, 1);
+		float t = glm::dot(rec.n, glm::vec3(0, 1, 0)) * 0.8f + 0.1f;
+		c = glm::vec3(t);
 	}
 	else {
 		float t = glm::normalize(r.d).y * 0.5f + 0.5f;
@@ -92,13 +102,15 @@ __global__ void kernel(ColorRenderbuffer::handle_cu renderbuffer_handle, Camera_
 
 void Renderer::Run() {
 
-	glm::vec3 lookfrom(0, 0, -4);
+	glm::vec3 lookfrom(0, 0, -18);
 	glm::vec3 lookat(0, 0, 0);
 	glm::vec3 up(0, 1, 0);
-	float vfov = glm::radians(90.0f);
+	float vfov = glm::radians(36.0f);
 	float aspect_ratio = renderbuffer.getWidth() / (float)renderbuffer.getHeight();
 
 	Camera_cu cam(lookfrom, lookat, up, vfov, aspect_ratio);
+
+	Scene scene(64, 0);
 
 	CudaTimer render_kernel_timer{};
 	HostTimer render_host_timer{};
@@ -112,7 +124,7 @@ void Renderer::Run() {
 	LOG(INFO) << "Renderer::Run ==> Launching render kernel with grid dimensions " << blocks.x << "x" << blocks.y << " : " << threads.x << "x" << threads.y << ".";
 	render_kernel_timer.Start();
 	render_host_timer.Start();
-	kernel<<<blocks, threads>>>(renderbuffer.getDeviceHandle(), cam);
+	kernel<<<blocks, threads>>>(renderbuffer.getDeviceHandle(), scene.getDeviceHandle(), cam);
 	render_host_timer.End();
 	render_kernel_timer.End();
 	CUDA_ASSERT(cudaGetLastError());
