@@ -18,5 +18,11 @@ struct ray {
 	__device__ glm::vec3 at(float t) const { return o + d * t; }
 }; // struct ray //
 
+struct TraceRecord {
+	float t;
+	float u, v;
+	glm::vec3 n;
+};
+
 } // namespace RT_ENGINE //
 #endif // define RT_ENGINE_RAY_STRUCT_H //
