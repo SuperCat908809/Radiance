@@ -5,6 +5,7 @@
     <ClCompile Include="header_library_impl.cpp" />
     <ClCompile Include="..\include\easylogging\easylogging++.cc" />
     <ClCompile Include="renderbuffer.cpp" />
+    <ClCompile Include="scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main_Kernel.cu" />
@@ -20,6 +21,7 @@
     <ClInclude Include="cuda_timer.h" />
     <ClInclude Include="host_timer.h" />
     <ClInclude Include="renderer.h" />
+    <ClInclude Include="scene.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rt_engine">
