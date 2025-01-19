@@ -48,6 +48,7 @@ public:
 #include "ray.h"
 #include "camera.h"
 #include "scene.h"
+#include "triangle_bvh.h"
 
 namespace RT_ENGINE {
 
@@ -76,18 +77,12 @@ __global__ void kernel(ColorRenderbuffer::handle_cu renderbuffer_handle, Scene::
 	float v = (gidy / (renderbuffer_handle.height - 1.0f)) * 2.0f - 1.0f;
 
 	ray r = cam.sample(u, v);
+	TraceRecord rec{};
+
+	bool hit = scene_handle.intersect(r, rec);
 
 	glm::vec3 c{};
-
-	TraceRecord rec{};
-	rec.t = 1e9f;
-
-	for (int i = 0; i < scene_handle.tri_count; i++) {
-		intersect_tri(r, rec, scene_handle.d_tris[i]);
-	}
-
-	if (rec.t < 1e9f) {
-		//c = glm::vec3(1, 1, 1);
+	if (hit) {
 		float t = glm::dot(rec.n, glm::vec3(0, 1, 0)) * 0.8f + 0.1f;
 		c = glm::vec3(t);
 	}

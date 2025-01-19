@@ -10,6 +10,9 @@
 
 namespace RT_ENGINE {
 
+#undef min
+#undef max
+
 class TriangleBVH {
 	struct BVHNode {
 		glm::vec3 aabbMin, aabbMax;

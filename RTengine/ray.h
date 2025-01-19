@@ -19,9 +19,9 @@ struct ray {
 }; // struct ray //
 
 struct TraceRecord {
-	float t;
-	float u, v;
-	glm::vec3 n;
+	float t{ 1e9f };
+	float u{ 0.0f }, v{ 0.0f };
+	glm::vec3 n{ 0,0,0 };
 };
 
 } // namespace RT_ENGINE //

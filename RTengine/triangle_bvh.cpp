@@ -104,6 +104,7 @@ TriangleBVH::TriangleBVH(int tri_count, int seed) : tri_count(tri_count) {
 	CUDA_ASSERT(cudaMemcpy(d_indices, indices.data(), indices.size() * sizeof(int), cudaMemcpyHostToDevice));
 
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> BVH data allocated and ready.";
+	LOG(INFO) << "TriangleBVH::TriangleBVH ==> #BVHNodes: " << nodes_used << ", #triangles and indices: " << tri_count << ".";
 }
 
 #undef min

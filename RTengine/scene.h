@@ -9,14 +9,14 @@
 
 #include "ray.h"
 #include "triangles.h"
+#include "triangle_bvh.h"
 
 
 namespace RT_ENGINE {
 
 class Scene {
 
-	Tri* d_tris;
-	int tri_count;
+	TriangleBVH bvh;
 
 	Scene(const Scene&) = delete;
 	Scene operator=(const Scene&) = delete;
@@ -24,8 +24,8 @@ class Scene {
 public:
 
 	struct handle_cu {
-		Tri* d_tris;
-		int tri_count;
+		TriangleBVH::handle_cu bvh_handle;
+		__device__ bool intersect(const ray& r, TraceRecord& rec) const { return bvh_handle.intersect(r, rec); }
 	};
 
 	Scene(Scene&& o);
@@ -34,7 +34,7 @@ public:
 
 	Scene(int tri_count, int seed);
 
-	handle_cu getDeviceHandle() const { return handle_cu{ d_tris, tri_count }; }
+	handle_cu getDeviceHandle() const { return handle_cu{ bvh.getDeviceHandle() }; }
 }; // class Scene //
 
 } // namespace RT_ENGINE //

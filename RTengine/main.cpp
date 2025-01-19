@@ -30,7 +30,7 @@ int main() {
 			[](glm::vec3 c) { return c * 255.0f; });
 
 		stbi_flip_vertically_on_write(true);
-		stbi_write_jpg("kernel_raii_testing.jpg", width, height, 3, image.data(), 90);
+		stbi_write_jpg("kernel_bvh_testing.jpg", width, height, 3, image.data(), 90);
 	}
 
 	LOG(INFO) << "main ==> Resetting the cuda device.";
