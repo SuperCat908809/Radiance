@@ -66,8 +66,8 @@ TriangleBVH::TriangleBVH(int tri_count, int seed) : tri_count(tri_count) {
 		tri.v2 = tri.v0 + r2;
 		tri.centeroid = (tri.v0 + tri.v1 + tri.v2) / 3.0f;
 
+		indices.push_back(triangles.size());
 		triangles.push_back(tri);
-		indices.push_back(indices.size());
 	}
 
 	tri_gen_timer.End();
@@ -165,8 +165,8 @@ void TriangleBVH::_subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& tria
 	if (leftCount == 0 || leftCount == node.triCount) return;
 
 	// create child nodes
-	int leftChildIdx = nodes_used++;
-	int rightChildIdx = nodes_used++;
+	int leftChildIdx = nodes.size();
+	int rightChildIdx = nodes.size() + 1;
 	BVHNode left_node{}, right_node{};
 	left_node.leftFirst = node.leftFirst;
 	left_node.triCount = leftCount;
@@ -177,6 +177,7 @@ void TriangleBVH::_subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& tria
 
 	nodes.push_back(left_node);
 	nodes.push_back(right_node);
+	nodes_used += 2;
 
 	_updateNodeBounds(nodes, triangles, indices, leftChildIdx);
 	_updateNodeBounds(nodes, triangles, indices, rightChildIdx);

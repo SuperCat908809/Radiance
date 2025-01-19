@@ -105,17 +105,21 @@ public:
 			return rec_intersect(r, rec, root_idx);
 #else
 			bool hit_any = false;
-			const BVHNode* nodes[64];
+			struct traversal_node { const BVHNode* node; int depth; };
+			//const BVHNode* nodes[64];
+			traversal_node nodes[64];
 			int head = 0;
-			nodes[head++] = &d_nodes[root_idx];
+			nodes[head++] = { &d_nodes[root_idx], 0 };
 
 			while (head > 0) {
-				const BVHNode* node = nodes[--head];
-				if (!node->intersect(r, rec)) continue;
-				if (node->isLeaf()) {
-					//for (int i = 0; i < node->triCount; i++) {
-					//	hit_any |= intersect_tri(r, rec, d_tris[d_indices[node->leftFirst + i]]);
-					//}
+				traversal_node node = nodes[--head];
+				if (node.depth <= 1) if (!node.node->intersect(r, rec)) continue;
+				if (node.node->isLeaf()) {
+#if 1
+					for (int i = 0; i < node.node->triCount; i++) {
+						hit_any |= intersect_tri(r, rec, d_tris[d_indices[node.node->leftFirst + i]]);
+					}
+#else
 					unsigned long long tmp = (unsigned long long)node;
 					int col = 0;
 						
@@ -131,10 +135,11 @@ public:
 					rec.t = node->intersect2(r, rec);
 					rec.n = glm::vec3(0, col/(float)0xff, 0);
 					return true;
+#endif
 				}
 				else {
-					nodes[head++] = &d_nodes[node->leftFirst + 0];
-					nodes[head++] = &d_nodes[node->leftFirst + 1];
+					nodes[head++] = { &d_nodes[node.node->leftFirst + 0], node.depth + 1 };
+					nodes[head++] = { &d_nodes[node.node->leftFirst + 1], node.depth + 1 };
 				}
 			}
 

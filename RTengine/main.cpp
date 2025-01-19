@@ -25,7 +25,7 @@ int main() {
 		std::vector<glm::vec3> float_image(width * height);
 		Renderer renderer(width, height);
 
-		int count = 24;
+		int count = 1;
 		for (int i = 0; i < count; i++) {
 			renderer.Run(glm::radians(i * 360.0f / (float)count));
 			//renderer.Run(0.0f);
@@ -36,7 +36,8 @@ int main() {
 				[](glm::vec3 c) { return c * 255.0f; });
 
 			std::stringstream ss{};
-			ss << "out/kernel_bvh_testing_" << std::setw(3) << std::setfill('0') << i + 1 << ".jpg";
+			//ss << "out/kernel_bvh_testing_" << std::setw(3) << std::setfill('0') << i + 1 << ".jpg";
+			ss << "out/kernel_bvh_testing_002.jpg";
 			std::string path = ss.str();
 
 			stbi_flip_vertically_on_write(true);
