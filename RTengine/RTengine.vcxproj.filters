@@ -2,30 +2,65 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="header_library_impl.cpp" />
-    <ClCompile Include="..\include\easylogging\easylogging++.cc" />
-    <ClCompile Include="renderbuffer.cpp" />
-    <ClCompile Include="scene.cpp" />
+    <ClCompile Include="scene.cpp">
+      <Filter>rt_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="renderbuffer.cpp">
+      <Filter>rt_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\easylogging\easylogging++.cc">
+      <Filter>libraries</Filter>
+    </ClCompile>
+    <ClCompile Include="header_library_impl.cpp">
+      <Filter>libraries</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="main_Kernel.cu" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="main_Kernel.h" />
     <ClInclude Include="ray.h">
       <Filter>rt_engine</Filter>
     </ClInclude>
-    <ClInclude Include="cuError.h" />
-    <ClInclude Include="renderbuffer.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="cuda_timer.h" />
-    <ClInclude Include="host_timer.h" />
-    <ClInclude Include="renderer.h" />
-    <ClInclude Include="scene.h" />
+    <ClInclude Include="camera.h">
+      <Filter>rt_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>rt_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer.h">
+      <Filter>rt_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="renderbuffer.h">
+      <Filter>rt_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="main_Kernel.h">
+      <Filter>rt_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_timer.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="cuError.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="host_timer.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="triangles.h">
+      <Filter>rt_engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rt_engine">
       <UniqueIdentifier>{a958057b-8800-42a5-902e-6c7e81595fa8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utilities">
+      <UniqueIdentifier>{2b68572f-4834-4cf2-b6f5-bacb82e7c31b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries">
+      <UniqueIdentifier>{2f48c4df-12c5-45f5-8c9e-9a965ec50cc1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="main_Kernel.cu">
+      <Filter>rt_engine</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>
