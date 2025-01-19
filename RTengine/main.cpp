@@ -26,12 +26,14 @@ int main() {
 		renderer.getRenderbuffer().Download(float_image);
 
 		std::vector<glm::u8vec3> image(float_image.size());
-		std::transform(float_image.begin(), float_image.end(), image.begin(), [](glm::vec3 c) { return c * 255.0f; });
+		std::transform(float_image.begin(), float_image.end(), image.begin(),
+			[](glm::vec3 c) { return c * 255.0f; });
 
 		stbi_flip_vertically_on_write(true);
 		stbi_write_jpg("kernel_raii_testing.jpg", width, height, 3, image.data(), 90);
 	}
 
+	LOG(INFO) << "main ==> Resetting the cuda device.";
 	cudaDeviceReset();
 
 	LOG(INFO) << "main ==> Main application finished";
