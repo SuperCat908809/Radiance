@@ -6,7 +6,7 @@
 #include <stb/stb_image_write.h>
 #include <easylogging/easylogging++.h>
 
-#include "main_Kernel.h"
+#include "renderer.h"
 
 
 using namespace RT_ENGINE;

@@ -37,5 +37,4 @@ public:
 }; // class Camera_cu //
 
 } // namespace RT_ENGINE //
-
 #endif // ifndef CAMERA_CLASS_CUDA_H //
