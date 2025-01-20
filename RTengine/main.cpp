@@ -25,7 +25,7 @@ int main() {
 		std::vector<glm::vec3> float_image(width * height);
 		Renderer renderer(width, height);
 
-		int count = 120;
+		int count = 1;
 		for (int i = 0; i < count; i++) {
 			renderer.Run(glm::radians(i * 360.0f / (float)count));
 			//renderer.Run(0.0f);

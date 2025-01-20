@@ -101,25 +101,25 @@ TriangleBVH::TriangleBVH(int tri_count, int seed) : tri_count(tri_count) {
 
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> Copying BVH data to device.";
 
-	LOG(INFO) << "TriangleBVH::TriangleBVH ==> Allocating " << nodes_used * sizeof(BVHNode) / 1000 << "KB for BVH nodes.";
-	CUDA_ASSERT(cudaMalloc((void**)&d_nodes, nodes_used * sizeof(BVHNode)));
+	LOG(INFO) << "TriangleBVH::TriangleBVH ==> Allocating " << nodes.size() * sizeof(BVHNode) / 1000 << "KB for BVH nodes.";
+	CUDA_ASSERT(cudaMalloc((void**)&d_nodes, nodes.size() * sizeof(BVHNode)));
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> Allocating " << triangles.size() * sizeof(Tri) / 1000 << "KB for triangles.";
 	CUDA_ASSERT(cudaMalloc((void**)&d_tris, triangles.size() * sizeof(Tri)));
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> Allocating " << indices.size() * sizeof(int) / 1000 << "KB for triangle indices.";
 	CUDA_ASSERT(cudaMalloc((void**)&d_indices, indices.size() * sizeof(int)));
 
-	CUDA_ASSERT(cudaMemcpy(d_nodes, nodes.data(), nodes_used * sizeof(BVHNode), cudaMemcpyHostToDevice));
+	CUDA_ASSERT(cudaMemcpy(d_nodes, nodes.data(), nodes.size() * sizeof(BVHNode), cudaMemcpyHostToDevice));
 	CUDA_ASSERT(cudaMemcpy(d_tris, triangles.data(), triangles.size() * sizeof(Tri), cudaMemcpyHostToDevice));
 	CUDA_ASSERT(cudaMemcpy(d_indices, indices.data(), indices.size() * sizeof(int), cudaMemcpyHostToDevice));
 
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> BVH data allocated and ready.";
-	LOG(INFO) << "TriangleBVH::TriangleBVH ==> #BVHNodes: " << nodes_used << ", #triangles and indices: " << tri_count << ".";
+	LOG(INFO) << "TriangleBVH::TriangleBVH ==> #BVHNodes: " << nodes.size() << ", #triangles and indices: " << tri_count << ".";
 }
 
 #undef min
 #undef max
 
-void TriangleBVH::_updateNodeBounds(std::vector<BVHNode>& nodes, std::vector<Tri>& triangles, std::vector<int> indices, int idx) {
+void TriangleBVH::_updateNodeBounds(std::vector<BVHNode>& nodes, std::vector<Tri>& triangles, std::vector<int>& indices, int idx) {
 	BVHNode& node = nodes[idx];
 	node.aabbMin = glm::vec3(1e30f);
 	node.aabbMax = glm::vec3(-1e30f);
@@ -138,7 +138,7 @@ void TriangleBVH::_updateNodeBounds(std::vector<BVHNode>& nodes, std::vector<Tri
 	}
 }
 
-void TriangleBVH::_subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& triangles, std::vector<int> indices, int idx) {
+void TriangleBVH::_subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& triangles, std::vector<int>& indices, int idx) {
 #if 1
 	BVHNode& node = nodes[idx];
 	if (node.triCount <= 2) return;

@@ -51,8 +51,8 @@ class TriangleBVH {
 		}
 	};
 
-	void _updateNodeBounds(std::vector<BVHNode>& nodes, std::vector<Tri>& tris, std::vector<int> indices, int node_idx);
-	void _subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& tris, std::vector<int> indices, int node_idx);
+	void _updateNodeBounds(std::vector<BVHNode>& nodes, std::vector<Tri>& tris, std::vector<int>& indices, int node_idx);
+	void _subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& tris, std::vector<int>& indices, int node_idx);
 
 	BVHNode* d_nodes;
 	Tri* d_tris;

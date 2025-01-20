@@ -16,7 +16,7 @@ namespace RT_ENGINE {
 
 class Scene {
 
-	TriangleBVH_2 bvh;
+	TriangleBVH bvh;
 
 	Scene(const Scene&) = delete;
 	Scene operator=(const Scene&) = delete;
@@ -24,7 +24,7 @@ class Scene {
 public:
 
 	struct handle_cu {
-		TriangleBVH_2::handle_cu bvh_handle;
+		TriangleBVH::handle_cu bvh_handle;
 		__device__ bool intersect(const ray& r, TraceRecord& rec) const { return bvh_handle.intersect(r, rec); }
 	};
 
