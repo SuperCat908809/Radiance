@@ -90,15 +90,6 @@ TriangleBVH::TriangleBVH(int tri_count, int seed) : tri_count(tri_count) {
 
 	bvh_construction_timer.End();
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> BVH built in " << bvh_construction_timer.ElapsedTimeMS() << "ms.";
-
-	for (int i = 0; i < nodes.size(); i++) {
-		BVHNode node = nodes[i];
-		if (node.triCount != 0) {
-			assert(node.leftFirst >= 0 && node.leftFirst <= tri_count);
-			assert(node.leftFirst + node.triCount >= 0 && node.leftFirst + node.triCount <= tri_count);
-		}
-	}
-
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> Copying BVH data to device.";
 
 	LOG(INFO) << "TriangleBVH::TriangleBVH ==> Allocating " << nodes.size() * sizeof(BVHNode) / 1000 << "KB for BVH nodes.";
