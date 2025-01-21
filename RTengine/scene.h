@@ -23,19 +23,26 @@ class Scene {
 
 public:
 
-	struct handle_cu {
-		TriangleBVH::handle_cu bvh_handle;
-		__device__ bool intersect(const ray& r, TraceRecord& rec) const { return bvh_handle.intersect(r, rec); }
-	};
+	struct handle_cu;
 
-	Scene(Scene&& o);
-	Scene& operator=(Scene&& o);
+	Scene(Scene&& o) noexcept;
+	Scene& operator=(Scene&& o) noexcept;
 	~Scene();
 
-	Scene(int tri_count, int seed);
+	Scene(int triangle_count, int seed);
 
-	handle_cu getDeviceHandle() const { return handle_cu{ bvh.getDeviceHandle() }; }
+	handle_cu getDeviceHandle() const;
+
 }; // class Scene //
+
+struct Scene::handle_cu {
+	TriangleBVH::handle_cu bvh_handle;
+	__device__ bool intersect(const ray& r, TraceRecord& rec) const;
+};
+
+#ifdef RT_ENGINE_IMPLEMENTATION
+__device__ bool Scene::handle_cu::intersect(const ray& r, TraceRecord& rec) const { return bvh_handle.intersect(r, rec); }
+#endif
 
 } // namespace RT_ENGINE //
 

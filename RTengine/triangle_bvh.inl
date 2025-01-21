@@ -31,14 +31,14 @@ __device__ bool TriangleBVH::BVHNode::isLeaf() const { return triCount > 0; }
 __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec) const {
 #if 0
 	bool hit_any = false;
-	for (int i = 0; i < tri_count; i++) {
+	for (int i = 0; i < triangle_count; i++) {
 		hit_any |= intersect_tri(r, rec, d_tris[i]);
 	}
 #else
 	bool hit_any = false;
 	const BVHNode* nodes[64];
 	int head = 0;
-	nodes[head++] = &d_nodes[root_idx];
+	nodes[head++] = &d_nodes[root_index];
 
 	while (head > 0) {
 		const BVHNode* node = nodes[--head];

@@ -24,42 +24,29 @@ struct aabb{
 };
 
 class TriangleBVH {
+
 	struct BVHNode;
+
 	BVHNode* d_nodes;
 	Tri* d_tris;
 	int* d_indices;
 
-	int root_idx, tri_count, nodes_used;
-
-	void _updateNodeBounds(std::vector<BVHNode>& nodes, std::vector<Tri>& tris, std::vector<int>& indices, int node_idx);
-	void _subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& tris, std::vector<int>& indices, int node_idx);
+	int root_index, triangle_count, nodes_used;
 
 	TriangleBVH(const TriangleBVH&) = delete;
 	TriangleBVH& operator=(const TriangleBVH&) = delete;
 
+	TriangleBVH(BVHNode*, Tri*, int*, int, int, int);
+
 public:
 
-#if 0
-	class Factory {
-		std::vector<BVHNode> bvh_nodes;
-		std::vector<Tri> triangles;
-		std::vector<int> triangle_indices;
+	class Factory;
+	struct handle_cu;
 
-		int root_index;
-
-	public:
-
-		static TriangleBVH BuildBVH(int triangle_count, int seed);
-	};
-#endif
-
-	TriangleBVH(TriangleBVH&&);
-	TriangleBVH& operator=(TriangleBVH&&);
+	TriangleBVH(TriangleBVH&&) noexcept;
+	TriangleBVH& operator=(TriangleBVH&&) noexcept;
 	~TriangleBVH();
 
-	TriangleBVH(int tri_count, int seed);
-
-	struct handle_cu;
 	handle_cu getDeviceHandle() const;
 };
 
@@ -69,12 +56,32 @@ struct TriangleBVH::BVHNode {
 	__device__ bool isLeaf() const;
 };
 
+class TriangleBVH::Factory {
+	std::vector<BVHNode> bvh_nodes;
+	std::vector<Tri> triangles;
+	std::vector<int> triangle_indices;
+
+	int root_index;
+
+	void _updateNodeBounds(int node_index);
+	void _subdivideNode(int node_index);
+
+	void _buildBVH(int triangle_count, int seed);
+
+	Factory() = default;
+
+public:
+
+	static TriangleBVH BuildBVH(int triangle_count, int seed);
+};
+
 struct TriangleBVH::handle_cu {
 	BVHNode* d_nodes;
 	Tri* d_tris;
 	int* d_indices;
-	int root_idx;
-	int tri_count;
+
+	int root_index;
+	int triangle_count;
 	int nodes_used;
 
 	__device__ bool intersect(const ray& r, TraceRecord& rec) const;
