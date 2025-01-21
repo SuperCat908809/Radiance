@@ -19,6 +19,8 @@ struct aabb{
 	void expand(const glm::vec3& p);
 	void expand(const aabb& b);
 
+	float surface_area() const;
+
 	__device__ bool intersect(const ray& r, const TraceRecord& rec) const;
 	__device__ float intersect_dist(const ray& r, const TraceRecord& rec) const;
 };
@@ -72,6 +74,9 @@ class TriangleBVH::Factory {
 
 	void _generateTriangles(int triangle_count, int seed);
 	void _loadSimpleTri();
+
+	float _findBestSplitAxis(int node_index, int& axis, float& split_pos);
+	float _evaluateSAH(int node_index, int candidate_axis, float candidate_split_pos);
 
 	void _buildBVH();
 	void _loadToDevice();

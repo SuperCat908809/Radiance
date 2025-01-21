@@ -14,6 +14,7 @@ aabb::aabb() : min(1e30f), max(-1e30f) {}
 aabb::aabb(glm::vec3 min, glm::vec3 max) : min(min), max(max) {}
 void aabb::expand(const glm::vec3& p) { min = glm::min(min, p); max = glm::max(max, p); }
 void aabb::expand(const aabb& b) { min = glm::min(min, b.min); max = glm::max(max, b.max); }
+float aabb::surface_area() const { auto e = max - min; return 2.0f * (e.x * e.y + e.x * e.z + e.y * e.z); }
 
 TriangleBVH::TriangleBVH(TriangleBVH&& o) noexcept {
 	d_nodes = o.d_nodes;
@@ -175,8 +176,56 @@ void TriangleBVH::Factory::_buildBVH() {
 	LOG(INFO) << "TriangleBVH::Factory::_buildBVH ==> BVH built in " << bvh_construction_timer.ElapsedTimeMS() << "ms.";
 }
 
-#undef min
-#undef max
+float TriangleBVH::Factory::_findBestSplitAxis(int node_index, int& axis, float& split_pos) {
+
+	BVHNode& node = bvh_nodes[node_index];
+
+	int best_axis = -1;
+	float best_pos = 0.0f, best_cost = 1e30f;
+	for (int candidate_axis = 0; candidate_axis < 3; candidate_axis++) {
+		for (int i = 0; i < node.triCount; i++) {
+			Tri& triangle = triangles[triangle_indices[node.leftFirst + i]];
+			float candidate_pos = triangle.centeroid[candidate_axis];
+			float cost = _evaluateSAH(node_index, candidate_axis, candidate_pos);
+			if (cost < best_cost) {
+				best_pos = candidate_pos;
+				best_axis = candidate_axis;
+				best_cost = cost;
+			}
+		}
+	}
+
+	axis = best_axis;
+	split_pos = best_pos;
+	return best_cost;
+}
+
+float TriangleBVH::Factory::_evaluateSAH(int node_index, int candidate_axis, float candidate_split_pos) {
+
+	BVHNode& node = bvh_nodes[node_index];
+
+	aabb left_box{}, right_box{};
+	int left_count = 0, right_count = 0;
+
+	for (int i = 0; i < node.triCount; i++) {
+		Tri& triangle = triangles[triangle_indices[node.leftFirst + i]];
+		if (triangle.centeroid[candidate_axis] < candidate_split_pos) {
+			left_count++;
+			left_box.expand(triangle.v0);
+			left_box.expand(triangle.v1);
+			left_box.expand(triangle.v2);
+		}
+		else {
+			right_count++;
+			right_box.expand(triangle.v0);
+			right_box.expand(triangle.v1);
+			right_box.expand(triangle.v2);
+		}
+	}
+
+	float cost = left_count * left_box.surface_area() + right_count * right_box.surface_area();
+	return cost > 0 ? cost : 1e30f;
+}
 
 void TriangleBVH::Factory::_updateNodeBounds(int idx) {
 	BVHNode& node = bvh_nodes[idx];
@@ -192,21 +241,29 @@ void TriangleBVH::Factory::_updateNodeBounds(int idx) {
 	}
 }
 
-void TriangleBVH::Factory::_subdivideNode(int idx) {
-	BVHNode& node = bvh_nodes[idx];
+void TriangleBVH::Factory::_subdivideNode(int node_index) {
+	BVHNode& node = bvh_nodes[node_index];
+#if 0
 	if (node.triCount <= 2) return;
 
 	glm::vec3 extent = node.bounds.max - node.bounds.min;
 	int axis = 0;
 	if (extent.y > extent.x) axis = 1;
 	if (extent.z > extent[axis]) axis = 2;
-	float splitPos = node.bounds.min[axis] + extent[axis] * 0.5f;
+	float split_pos = node.bounds.min[axis] + extent[axis] * 0.5f;
+#else
+	int axis{};
+	float split_pos{};
+	float split_cost = _findBestSplitAxis(node_index, axis, split_pos);
+	float current_cost = node.bounds.surface_area() * node.triCount;
+	if (split_cost > current_cost) return;
+#endif
 
 	int i = node.leftFirst;
 	int j = node.leftFirst + node.triCount - 1;
 
 	while (i <= j) {
-		if (triangles[triangle_indices[i]].centeroid[axis] < splitPos) {
+		if (triangles[triangle_indices[i]].centeroid[axis] < split_pos) {
 			i++;
 		}
 		else {
