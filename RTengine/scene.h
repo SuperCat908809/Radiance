@@ -29,7 +29,7 @@ public:
 	Scene& operator=(Scene&& o) noexcept;
 	~Scene();
 
-	Scene(int triangle_count, int seed);
+	Scene();
 
 	handle_cu getDeviceHandle() const;
 
