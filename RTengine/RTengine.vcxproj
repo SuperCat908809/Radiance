@@ -179,6 +179,9 @@
     <ClInclude Include="triangles.h" />
     <ClInclude Include="triangle_bvh.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="triangle_bvh.inl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.6.targets" />

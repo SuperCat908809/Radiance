@@ -69,4 +69,9 @@
       <Filter>rt_engine</Filter>
     </CudaCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="triangle_bvh.inl">
+      <Filter>rt_engine</Filter>
+    </None>
+  </ItemGroup>
 </Project>

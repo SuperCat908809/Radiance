@@ -6,6 +6,13 @@
 
 using namespace RT_ENGINE;
 
+#undef min
+#undef max
+aabb::aabb() : min(1e30f), max(-1e30f) {}
+aabb::aabb(glm::vec3 min, glm::vec3 max) : min(min), max(max) {}
+void aabb::expand(const glm::vec3& p) { min = glm::min(min, p); max = glm::max(max, p); }
+void aabb::expand(const aabb& b) { min = glm::min(min, b.min); max = glm::max(max, b.max); }
+
 TriangleBVH::TriangleBVH(TriangleBVH&& o) {
 	d_nodes = o.d_nodes;
 	d_tris = o.d_tris;
@@ -112,20 +119,15 @@ TriangleBVH::TriangleBVH(int tri_count, int seed) : tri_count(tri_count) {
 
 void TriangleBVH::_updateNodeBounds(std::vector<BVHNode>& nodes, std::vector<Tri>& triangles, std::vector<int>& indices, int idx) {
 	BVHNode& node = nodes[idx];
-	node.aabbMin = glm::vec3(1e30f);
-	node.aabbMax = glm::vec3(-1e30f);
+	node.bounds = {};
 
 	for (int i = 0; i < node.triCount; i++) {
 		int triIdx = indices[node.leftFirst + i];
 		const Tri& leafTri = triangles[triIdx];
 
-		node.aabbMin = glm::min(node.aabbMin, leafTri.v0);
-		node.aabbMin = glm::min(node.aabbMin, leafTri.v1);
-		node.aabbMin = glm::min(node.aabbMin, leafTri.v2);
-
-		node.aabbMax = glm::max(node.aabbMax, leafTri.v0);
-		node.aabbMax = glm::max(node.aabbMax, leafTri.v1);
-		node.aabbMax = glm::max(node.aabbMax, leafTri.v2);
+		node.bounds.expand(leafTri.v0);
+		node.bounds.expand(leafTri.v1);
+		node.bounds.expand(leafTri.v2);
 	}
 }
 
@@ -133,11 +135,11 @@ void TriangleBVH::_subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& tria
 	BVHNode& node = nodes[idx];
 	if (node.triCount <= 2) return;
 
-	glm::vec3 extent = node.aabbMax - node.aabbMin;
+	glm::vec3 extent = node.bounds.max - node.bounds.min;
 	int axis = 0;
 	if (extent.y > extent.x) axis = 1;
 	if (extent.z > extent[axis]) axis = 2;
-	float splitPos = node.aabbMin[axis] + extent[axis] * 0.5f;
+	float splitPos = node.bounds.min[axis] + extent[axis] * 0.5f;
 
 	int i = node.leftFirst;
 	int j = node.leftFirst + node.triCount - 1;
@@ -174,4 +176,11 @@ void TriangleBVH::_subdivide(std::vector<BVHNode>& nodes, std::vector<Tri>& tria
 
 	_subdivide(nodes, triangles, indices, leftChildIdx);
 	_subdivide(nodes, triangles, indices, rightChildIdx);
+}
+
+TriangleBVH::handle_cu TriangleBVH::getDeviceHandle() const {
+	return handle_cu{
+		d_nodes,d_tris,d_indices,
+		root_idx,tri_count,nodes_used
+	};
 }
