@@ -1,4 +1,5 @@
 #include "triangle_bvh.h"
+#include <device_launch_parameters.h>
 
 namespace RT_ENGINE {
 
@@ -29,7 +30,7 @@ __device__ float aabb::intersect_dist(const ray& r, const TraceRecord& rec) cons
 __device__ bool TriangleBVH::BVHNode::isLeaf() const { return triCount > 0; }
 
 __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec) const {
-#if 1
+#if 0
 	bool hit_any = false;
 	for (int i = 0; i < triangle_count; i++) {
 		hit_any |= intersect_tri(r, rec, d_tris[i]);
@@ -37,11 +38,16 @@ __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec
 	return hit_any;
 #else
 	bool hit_any = false;
-	const BVHNode* nodes[64];
+	const BVHNode* nodes[32];
 	int head = 0;
 	nodes[head++] = &d_nodes[root_index];
 
+	int max_head = 0;
+
 	while (head > 0) {
+
+		if (max_head < head) max_head = head;
+
 		const BVHNode* node = nodes[--head];
 		if (!node->bounds.intersect(r, rec)) continue;
 		if (node->isLeaf()) {
@@ -54,6 +60,15 @@ __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec
 			nodes[head++] = &d_nodes[node->leftFirst + 1];
 		}
 	}
+
+#if 0
+	if (threadIdx.x == 0 && threadIdx.y == 0)
+	{
+		int gidx = blockDim.x * blockIdx.x + threadIdx.x;
+		int gidy = blockDim.y * blockIdx.y + threadIdx.y;
+		printf("%ix%i max_head: %i\n", gidx, gidy, max_head);
+	}
+#endif
 
 	return hit_any;
 #endif
