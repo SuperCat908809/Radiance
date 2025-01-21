@@ -26,8 +26,16 @@ __global__ void kernel(ColorRenderbuffer::handle_cu renderbuffer_handle, Scene::
 
 	glm::vec3 c{};
 	if (hit) {
-		float t = glm::dot(rec.n, glm::vec3(0, 1, 0)) * 0.8f + 0.1f;
-		c = glm::vec3(t);
+		float t = glm::dot(rec.n, glm::vec3(0, 1, 0));
+		t = t * 0.5f + 0.5f;
+		t = t * 0.8f + 0.1f;
+
+		if (t > 1)
+			c = glm::vec3(t, 0, 0);
+		else if (t > 0)
+			c = glm::vec3(t, t, t);
+		else
+			c = glm::vec3(0, 0, t);
 	}
 	else {
 		float t = glm::normalize(r.d).y * 0.5f + 0.5f;
