@@ -3,6 +3,12 @@
 
 namespace RT_ENGINE {
 
+template <typename T> __device__ inline void cuda_swap(T& a, T& b) {
+	T tmp = std::move(a);
+	a = std::move(b);
+	b = std::move(tmp);
+}
+
 __device__ bool aabb::intersect(const ray& r, const TraceRecord& rec) const {
 	glm::vec3 t1 = (min - r.o) / r.d, t2 = (max - r.o) / r.d;
 	glm::vec3 tmin = glm::min(t1, t2), tmax = glm::max(t1, t2);
@@ -50,19 +56,27 @@ __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec
 
 		const BVHNode* node = nodes[--head];
 		if (!node->bounds.intersect(r, rec)) continue;
+		
 		if (node->isLeaf()) {
 			for (int i = 0; i < node->triCount; i++) {
 				hit_any |= intersect_tri(r, rec, d_tris[d_indices[node->leftFirst + i]]);
 			}
+			continue;
 		}
-		else {
-			nodes[head++] = &d_nodes[node->leftFirst + 0];
-			nodes[head++] = &d_nodes[node->leftFirst + 1];
-		}
+
+		BVHNode* left_node = &d_nodes[node->leftFirst + 0];
+		BVHNode* right_node = &d_nodes[node->leftFirst + 1];
+
+		float left_dist = left_node->bounds.intersect_dist(r, rec);
+		float right_dist = right_node->bounds.intersect_dist(r, rec);
+
+		if (left_dist > right_dist) { cuda_swap(left_dist, right_dist); cuda_swap(left_node, right_node); }
+		if (right_dist < 1e30f) nodes[head++] = right_node;
+		if (left_dist < 1e30f) nodes[head++] = left_node;
 	}
 
 #if 0
-	if (threadIdx.x == 0 && threadIdx.y == 0)
+	if (threadIdx.x == 0 && threadIdx.y == 0 && max_head > 1)
 	{
 		int gidx = blockDim.x * blockIdx.x + threadIdx.x;
 		int gidy = blockDim.y * blockIdx.y + threadIdx.y;
