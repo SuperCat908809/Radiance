@@ -25,6 +25,7 @@ int main() {
 		std::vector<glm::vec3> float_image(width * height);
 		Renderer renderer(width, height);
 
+#if 0
 		int count = 1;
 		for (int i = 0; i < count; i++) {
 			renderer.Run(glm::radians(i * 360.0f / (float)count));
@@ -43,6 +44,9 @@ int main() {
 			stbi_flip_vertically_on_write(true);
 			stbi_write_jpg(path.c_str(), width, height, 3, image.data(), 90);
 		}
+#else
+		renderer.RunFPSTest(120, 10);
+#endif
 	}
 
 	LOG(INFO) << "main ==> Resetting the cuda device.";

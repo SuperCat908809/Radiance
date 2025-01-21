@@ -1,9 +1,16 @@
 #include "renderer.h"
 
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
+
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
 #include <easylogging/easylogging++.h>
+
+#include <stb/stb_image_write.h>
 
 #include "cuError.h"
 #include "host_timer.h"
@@ -62,4 +69,64 @@ void Renderer::Run(float t) {
 	CUDA_ASSERT(cudaDeviceSynchronize());
 
 	LOG(INFO) << "Renderer::Run ==> kernel finished in " << render_host_timer.ElapsedTimeMS() << "ms on host and " << render_kernel_timer.ElapsedTimeMS() << "ms on device.";
+} // Renderer::Run //
+
+void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
+
+	LOG(INFO) << "Renderer::Run ==> Beginning orbit of model: " << orbit_steps << " orbit steps " << frames_per_step << " frame steps.";
+
+	for (int orbit_index = 0; orbit_index < orbit_steps; orbit_index++) {
+
+		float rotation = glm::radians(orbit_index / (float)orbit_steps * 360.0f);
+
+		glm::vec3 lookfrom(0, 0, -4);
+		lookfrom = glm::rotate(lookfrom, rotation, glm::vec3(0, 1, 0));
+		glm::vec3 lookat(-1.5f, 0, 0);
+		glm::vec3 up(0, 1, 0);
+		float vfov = glm::radians(36.0f);
+		float aspect_ratio = renderbuffer.getWidth() / (float)renderbuffer.getHeight();
+
+		cam = Camera_cu(lookfrom, lookat, up, vfov, aspect_ratio);
+
+		dim3 threads = { 8,8,1 };
+		dim3 blocks{};
+		blocks.x = (renderbuffer.getWidth() + threads.x - 1) / threads.x;
+		blocks.y = (renderbuffer.getHeight() + threads.y - 1) / threads.y;
+		blocks.z = 1;
+
+		float cuda_ms = 0.0f;
+
+		for (int frame_index = 0; frame_index < frames_per_step; frame_index++) {
+
+			CudaTimer render_kernel_timer{};
+
+			render_kernel_timer.Start();
+			_launch_kernel(blocks, threads, renderbuffer.getDeviceHandle(), scene.getDeviceHandle(), cam);
+			render_kernel_timer.End();
+
+			CUDA_ASSERT(cudaGetLastError());
+			CUDA_ASSERT(cudaDeviceSynchronize());
+
+			cuda_ms += render_kernel_timer.ElapsedTimeMS();
+		}
+
+		std::vector<glm::vec3> float_image(renderbuffer.getWidth() * renderbuffer.getHeight());
+		renderbuffer.Download(float_image);
+
+		std::vector<glm::u8vec3> image(float_image.size());
+		std::transform(float_image.begin(), float_image.end(), image.begin(),
+			[](glm::vec3 c) { return c * 255.0f; });
+
+		std::stringstream ss{};
+		ss << "out/kernel_bvh_testing_" << std::setw(4) << std::setfill('0') << orbit_index + 1 << ".jpg";
+		//ss << "out/kernel_bvh_testing_002.jpg";
+		std::string path = ss.str();
+
+		stbi_flip_vertically_on_write(true);
+		stbi_write_jpg(path.c_str(), renderbuffer.getWidth(), renderbuffer.getHeight(), 3, image.data(), 90);
+
+		//LOG(INFO) << "Renderer::Run ==> kernel finished in " << render_host_timer.ElapsedTimeMS() << "ms on host and " << render_kernel_timer.ElapsedTimeMS() << "ms on device.";
+		LOG(INFO) << "Renderer::Run ==> Orbit index : " << orbit_index + 1 << " avg frame time: " << cuda_ms / frames_per_step << "ms, avg FPS: " << 1000 * frames_per_step / cuda_ms << ".";
+
+	}
 } // Renderer::Run //
