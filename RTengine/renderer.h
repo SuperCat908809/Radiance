@@ -5,12 +5,16 @@
 #include <glm/glm.hpp>
 
 #include "renderbuffer.h"
+#include "camera.h"
+#include "scene.h"
 
 
 namespace RT_ENGINE {
 class Renderer {
 
 	ColorRenderbuffer renderbuffer;
+	Scene scene;
+	Camera_cu cam;
 
 	Renderer(const Renderer&) = delete;
 	Renderer& operator=(const Renderer&) = delete;

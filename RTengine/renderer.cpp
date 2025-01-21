@@ -26,7 +26,8 @@ Renderer& Renderer::operator=(Renderer&& o) noexcept {
 }
 Renderer::~Renderer() = default;
 
-Renderer::Renderer(int width, int height) : renderbuffer(width, height) {}
+Renderer::Renderer(int width, int height) 
+	: scene(), renderbuffer(width, height) {}
 
 const ColorRenderbuffer& Renderer::getRenderbuffer() const { return renderbuffer; }
 
@@ -39,9 +40,7 @@ void Renderer::Run(float t) {
 	float vfov = glm::radians(36.0f);
 	float aspect_ratio = renderbuffer.getWidth() / (float)renderbuffer.getHeight();
 
-	Camera_cu cam(lookfrom, lookat, up, vfov, aspect_ratio);
-
-	Scene scene(64, 0);
+	cam = Camera_cu(lookfrom, lookat, up, vfov, aspect_ratio);
 
 	CudaTimer render_kernel_timer{};
 	HostTimer render_host_timer{};
