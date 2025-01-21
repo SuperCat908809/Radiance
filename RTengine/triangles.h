@@ -32,6 +32,7 @@ __device__ inline bool intersect_tri(const ray& r, TraceRecord& rec, const Tri& 
 		rec.n = glm::normalize(glm::cross(edge1, edge2));
 		return true;
 	}
+	return false;
 }
 
 } // namespace RT_ENGINE //
