@@ -29,11 +29,12 @@ __device__ float aabb::intersect_dist(const ray& r, const TraceRecord& rec) cons
 __device__ bool TriangleBVH::BVHNode::isLeaf() const { return triCount > 0; }
 
 __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec) const {
-#if 0
+#if 1
 	bool hit_any = false;
 	for (int i = 0; i < triangle_count; i++) {
 		hit_any |= intersect_tri(r, rec, d_tris[i]);
 	}
+	return hit_any;
 #else
 	bool hit_any = false;
 	const BVHNode* nodes[64];
