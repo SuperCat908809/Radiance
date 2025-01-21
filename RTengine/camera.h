@@ -12,6 +12,7 @@ class Camera_cu {
 
 public:
 
+	__host__ __device__ Camera_cu() = default;
 	__host__ __device__ Camera_cu(glm::vec3 lookfrom, glm::vec3 lookat, glm::vec3 up, float vfov, float aspect_ratio) {
 		float theta = vfov / 2.0f;
 		float viewport_height = tanf(theta) * 2.0f;
