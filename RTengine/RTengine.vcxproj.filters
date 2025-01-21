@@ -17,6 +17,9 @@
     <ClCompile Include="triangle_bvh.cpp">
       <Filter>rt_engine</Filter>
     </ClCompile>
+    <ClCompile Include="renderer.cpp">
+      <Filter>rt_engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ray.h">
@@ -71,6 +74,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="triangle_bvh.inl">
+      <Filter>rt_engine</Filter>
+    </None>
+    <None Include="renderer.inl">
       <Filter>rt_engine</Filter>
     </None>
   </ItemGroup>

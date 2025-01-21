@@ -160,6 +160,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="header_library_impl.cpp" />
     <ClCompile Include="renderbuffer.cpp" />
+    <ClCompile Include="renderer.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="triangle_bvh.cpp" />
   </ItemGroup>
@@ -180,6 +181,7 @@
     <ClInclude Include="triangle_bvh.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="renderer.inl" />
     <None Include="triangle_bvh.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
