@@ -75,6 +75,8 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
 
 	LOG(INFO) << "Renderer::Run ==> Beginning orbit of model: " << orbit_steps << " orbit steps " << frames_per_step << " frame steps.";
 
+	LOG(INFO) << ",Orbit time,Avg. Frametime,Avg. FPS";
+
 	for (int orbit_index = 0; orbit_index < orbit_steps; orbit_index++) {
 
 		float rotation = glm::radians(orbit_index / (float)orbit_steps * 360.0f);
@@ -126,7 +128,7 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
 		stbi_write_jpg(path.c_str(), renderbuffer.getWidth(), renderbuffer.getHeight(), 3, image.data(), 90);
 
 		//LOG(INFO) << "Renderer::Run ==> kernel finished in " << render_host_timer.ElapsedTimeMS() << "ms on host and " << render_kernel_timer.ElapsedTimeMS() << "ms on device.";
-		LOG(INFO) << "Renderer::Run ==> Orbit index : " << orbit_index + 1 << " avg frame time: " << cuda_ms / frames_per_step << "ms, avg FPS: " << 1000 * frames_per_step / cuda_ms << ".";
-
+		//LOG(INFO) << "Renderer::Run ==> Orbit index : " << orbit_index + 1 << " avg frame time: " << cuda_ms / frames_per_step << "ms, avg FPS: " << 1000 * frames_per_step / cuda_ms << ".";
+		LOG(INFO) << "," << orbit_index + 1 << "," << cuda_ms / frames_per_step << "," << 1000 * frames_per_step / cuda_ms;
 	}
 } // Renderer::Run //
