@@ -138,6 +138,7 @@ void TriangleBVH::Factory::_loadSimpleTri() {
 	if (file == nullptr) {
 		LOG(FATAL) << "Could not open model file.";
 		assert(0);
+		throw std::runtime_error("Could not open model file.");
 	}
 
 	float a, b, c, d, e, f, g, h, i;
