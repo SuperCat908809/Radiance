@@ -63,16 +63,25 @@ class TriangleBVH::Factory {
 
 	int root_index{};
 
+	BVHNode* d_nodes{ nullptr };
+	Tri* d_tris{ nullptr };
+	int* d_indices{ nullptr };
+
 	void _updateNodeBounds(int node_index);
 	void _subdivideNode(int node_index);
 
-	void _buildBVH(int triangle_count, int seed);
+	void _generateTriangles(int triangle_count, int seed);
+	void _loadSimpleTri();
+
+	void _buildBVH();
+	void _loadToDevice();
 
 	Factory() = default;
 
 public:
 
-	static TriangleBVH BuildBVH(int triangle_count, int seed);
+	static TriangleBVH BuildBVHFromRandomTriangles(int triangle_count, int seed);
+	static TriangleBVH BuildBVHFromSimpleTri();
 };
 
 struct TriangleBVH::handle_cu {

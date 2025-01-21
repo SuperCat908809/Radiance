@@ -1,5 +1,7 @@
 #include "triangle_bvh.h"
 
+#include <fstream>
+
 #include "cuError.h"
 #include "host_timer.h"
 
@@ -48,6 +50,7 @@ TriangleBVH& TriangleBVH::operator=(TriangleBVH&& o) noexcept {
 }
 
 TriangleBVH::~TriangleBVH() {
+	if (d_nodes == nullptr && d_tris == nullptr && d_indices == nullptr) return;
 	LOG(INFO) << "TriangleBVH::~TriangleBVH ==> Freeing device BVH memory.";
 	if (d_nodes != nullptr) CUDA_ASSERT(cudaFree(d_nodes));
 	if (d_tris != nullptr) CUDA_ASSERT(cudaFree(d_tris));
@@ -57,40 +60,52 @@ TriangleBVH::~TriangleBVH() {
 
 TriangleBVH::TriangleBVH(BVHNode* dn, Tri* dt, int* di, int ri, int tc, int nu)
 	: d_nodes(dn), d_tris(dt), d_indices(di), root_index(ri), triangle_count(tc), nodes_used(nu) {}
-TriangleBVH TriangleBVH::Factory::BuildBVH(int triangle_count, int seed) {
+TriangleBVH TriangleBVH::Factory::BuildBVHFromRandomTriangles(int triangle_count, int seed) {
 
 	TriangleBVH::Factory factory{};
 
-	factory._buildBVH(triangle_count, seed);
+	factory._generateTriangles(triangle_count, seed);
+	factory._buildBVH();
+	factory._loadToDevice();
 
-	BVHNode* d_nodes;
-	Tri* d_tris;
-	int* d_indices;
-
-	LOG(INFO) << "TriangleBVH::Factory::BuildBVH ==> Allocating and uploading BVH data to device.";
-
-	LOG(INFO) << "TriangleBVH::Factory::BuildBVH ==> Allocating " << factory.bvh_nodes.size() * sizeof(BVHNode) / 1000 << "KB for BVH nodes.";
-	CUDA_ASSERT(cudaMalloc((void**)&d_nodes, factory.bvh_nodes.size() * sizeof(BVHNode)));
-	LOG(INFO) << "TriangleBVH::Factory::BuildBVH ==> Allocating " << factory.triangles.size() * sizeof(Tri) / 1000 << "KB for triangles.";
-	CUDA_ASSERT(cudaMalloc((void**)&d_tris, factory.triangles.size() * sizeof(Tri)));
-	LOG(INFO) << "TriangleBVH::Factory::BuildBVH ==> Allocating " << factory.triangle_indices.size() * sizeof(int) / 1000 << "KB for triangle indices.";
-	CUDA_ASSERT(cudaMalloc((void**)&d_indices, factory.triangle_indices.size() * sizeof(int)));
-
-	CUDA_ASSERT(cudaMemcpy(d_nodes, factory.bvh_nodes.data(), factory.bvh_nodes.size() * sizeof(BVHNode), cudaMemcpyHostToDevice));
-	CUDA_ASSERT(cudaMemcpy(d_tris, factory.triangles.data(), factory.triangles.size() * sizeof(Tri), cudaMemcpyHostToDevice));
-	CUDA_ASSERT(cudaMemcpy(d_indices, factory.triangle_indices.data(), factory.triangle_indices.size() * sizeof(int), cudaMemcpyHostToDevice));
-
-	LOG(INFO) << "TriangleBVH::Factory::BuildBVH ==> BVH data allocated and ready.";
-	LOG(INFO) << "TriangleBVH::Factory::BuildBVH ==> #BVHNodes: " << factory.bvh_nodes.size() << ", #triangles and indices: " << triangle_count << ".";
-
-	return TriangleBVH{ d_nodes,d_tris,d_indices,factory.root_index,(int)factory.triangles.size(),(int)factory.bvh_nodes.size() };
+	return TriangleBVH{ factory.d_nodes,factory.d_tris,factory.d_indices,factory.root_index,(int)factory.triangles.size(),(int)factory.bvh_nodes.size() };
 }
 
+TriangleBVH TriangleBVH::Factory::BuildBVHFromSimpleTri() {
+	
+	TriangleBVH::Factory factory{};
+
+	factory._loadSimpleTri();
+	factory._buildBVH();
+	factory._loadToDevice();
+
+	return TriangleBVH{ factory.d_nodes,factory.d_tris,factory.d_indices,factory.root_index,(int)factory.triangles.size(),(int)factory.bvh_nodes.size() };
+}
+
+void TriangleBVH::Factory::_loadToDevice() {
+	LOG(INFO) << "TriangleBVH::Factory::_loadToDevice ==> Allocating and uploading BVH data to device.";
+
+	LOG(INFO) << "TriangleBVH::Factory::_loadToDevice ==> Allocating " << bvh_nodes.size() * sizeof(BVHNode) / 1000 << "KB for BVH nodes.";
+	CUDA_ASSERT(cudaMalloc((void**)&d_nodes, bvh_nodes.size() * sizeof(BVHNode)));
+	LOG(INFO) << "TriangleBVH::Factory::_loadToDevice ==> Allocating " << triangles.size() * sizeof(Tri) / 1000 << "KB for triangles.";
+	CUDA_ASSERT(cudaMalloc((void**)&d_tris, triangles.size() * sizeof(Tri)));
+	LOG(INFO) << "TriangleBVH::Factory::_loadToDevice ==> Allocating " << triangle_indices.size() * sizeof(int) / 1000 << "KB for triangle indices.";
+	CUDA_ASSERT(cudaMalloc((void**)&d_indices, triangle_indices.size() * sizeof(int)));
+
+	CUDA_ASSERT(cudaMemcpy(d_nodes, bvh_nodes.data(), bvh_nodes.size() * sizeof(BVHNode), cudaMemcpyHostToDevice));
+	CUDA_ASSERT(cudaMemcpy(d_tris, triangles.data(), triangles.size() * sizeof(Tri), cudaMemcpyHostToDevice));
+	CUDA_ASSERT(cudaMemcpy(d_indices, triangle_indices.data(), triangle_indices.size() * sizeof(int), cudaMemcpyHostToDevice));
+
+	LOG(INFO) << "TriangleBVH::Factory::_loadToDevice ==> BVH data allocated and ready.";
+	LOG(INFO) << "TriangleBVH::Factory::_loadToDevice ==> #BVHNodes: " << bvh_nodes.size() << ", #triangles and indices: " << triangles.size() << ".";
+}
+
+
 #define rnd (rand() / (float)RAND_MAX)
-void TriangleBVH::Factory::_buildBVH(int triangle_count, int seed) {
+void TriangleBVH::Factory::_generateTriangles(int triangle_count, int seed) {
 	srand(seed);
 
-	LOG(INFO) << "TriangleBVH::Factory::_buildBVH ==> Generating random triangles.";
+	LOG(INFO) << "TriangleBVH::Factory::_generateTriangles ==> Generating random triangles.";
 	HostTimer tri_gen_timer{};
 	tri_gen_timer.Start();
 
@@ -109,14 +124,47 @@ void TriangleBVH::Factory::_buildBVH(int triangle_count, int seed) {
 	}
 
 	tri_gen_timer.End();
-	LOG(INFO) << "TriangleBVH::Factory::_buildBVH ==> triangles generated in " << tri_gen_timer.ElapsedTimeMS() << "ms.";
+	LOG(INFO) << "TriangleBVH::Factory::_generateTriangles ==> triangles generated in " << tri_gen_timer.ElapsedTimeMS() << "ms.";
+}
+
+void TriangleBVH::Factory::_loadSimpleTri() {
+	LOG(INFO) << "TriangleBVH::Factory::_loadSimpleTri ==> loading simple triangle model from disk.";
+	HostTimer model_load_timer{};
+	model_load_timer.Start();
+
+	FILE* file{nullptr};
+	fopen_s(&file, "../Assets/test_geometry/unity.tri", "r");
+	if (file == nullptr) {
+		LOG(FATAL) << "Could not open model file.";
+		assert(0);
+	}
+
+	float a, b, c, d, e, f, g, h, i;
+	for (int t = 0; t < 12582; t++) {
+		fscanf_s(file, "%f %f %f %f %f %f %f %f %f\n",
+			&a, &b, &c, &d, &e, &f, &g, &h, &i);
+		Tri tri{};
+		tri.v0 = glm::vec3(a, b, c);
+		tri.v1 = glm::vec3(d, e, f);
+		tri.v2 = glm::vec3(g, h, i);
+		tri.centeroid = (tri.v0 + tri.v1 + tri.v2) / 3.0f;
+		triangles.push_back(tri);
+		triangle_indices.push_back(triangles.size() - 1);
+	}
+	fclose(file);
+
+	model_load_timer.End();
+	LOG(INFO) << "TriangleBVH::Factory::_loadSimpleTri ==> simple triangle model loaded " << triangles.size() << " triangles in " << model_load_timer.ElapsedTimeMS() << "ms.";
+}
+
+void TriangleBVH::Factory::_buildBVH() {
 	LOG(INFO) << "TriangleBVH::Factory::_buildBVH ==> Starting BVH construction.";
 	HostTimer bvh_construction_timer{};
 	bvh_construction_timer.Start();
 
 	BVHNode root{};
 	root.leftFirst = 0;
-	root.triCount = triangle_count;
+	root.triCount = triangles.size();
 	bvh_nodes.push_back(root);
 	root_index = bvh_nodes.size() - 1;
 

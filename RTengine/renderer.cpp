@@ -32,9 +32,9 @@ const ColorRenderbuffer& Renderer::getRenderbuffer() const { return renderbuffer
 
 void Renderer::Run(float t) {
 
-	glm::vec3 lookfrom(0, 0, -18);
+	glm::vec3 lookfrom(0, 0, -4);
 	lookfrom = glm::rotate(lookfrom, t, glm::vec3(0, 1, 0));
-	glm::vec3 lookat(0, 0, 0);
+	glm::vec3 lookat(-1.5f, 0, 0);
 	glm::vec3 up(0, 1, 0);
 	float vfov = glm::radians(36.0f);
 	float aspect_ratio = renderbuffer.getWidth() / (float)renderbuffer.getHeight();
