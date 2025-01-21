@@ -55,8 +55,8 @@ void ColorRenderbuffer::Download(std::vector<glm::vec3>& host_dst) const {
 
 	assert(host_dst.size() == width * height);
 
-	LOG(INFO) << "ColorRenderbuffer::Download ==> Downloading renderbuffer to from device to host.";
+	//LOG(INFO) << "ColorRenderbuffer::Download ==> Downloading renderbuffer to from device to host.";
 	CUDA_ASSERT(cudaMemcpy((glm::vec3*)host_dst.data(), d_image, width * height * sizeof(glm::vec3), cudaMemcpyDeviceToHost));
-	LOG(INFO) << "ColorRenderbuffer::Download ==> download done.";
+	//LOG(INFO) << "ColorRenderbuffer::Download ==> download done.";
 
 }
