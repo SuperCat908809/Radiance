@@ -19,6 +19,7 @@ TriangleBVH::TriangleBVH(TriangleBVH&& o) noexcept {
 	d_indices = o.d_indices;
 
 	root_index = o.root_index;
+	triangle_count = o.triangle_count;
 	nodes_used = o.nodes_used;
 
 	o.d_nodes = nullptr;
@@ -36,6 +37,7 @@ TriangleBVH& TriangleBVH::operator=(TriangleBVH&& o) noexcept {
 	d_indices = o.d_indices;
 
 	root_index = o.root_index;
+	triangle_count = o.triangle_count;
 	nodes_used = o.nodes_used;
 
 	o.d_nodes = nullptr;
