@@ -36,7 +36,7 @@ int main() {
 				[](glm::vec3 c) { return c * 255.0f; });
 
 			std::stringstream ss{};
-			ss << "out/kernel_bvh_testing_" << std::setw(3) << std::setfill('0') << i + 1 << ".jpg";
+			ss << "out/kernel_bvh_testing_" << std::setw(4) << std::setfill('0') << i + 1 << ".jpg";
 			//ss << "out/kernel_bvh_testing_002.jpg";
 			std::string path = ss.str();
 
