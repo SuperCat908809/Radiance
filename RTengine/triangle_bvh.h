@@ -61,7 +61,7 @@ class TriangleBVH::Factory {
 	std::vector<Tri> triangles;
 	std::vector<int> triangle_indices;
 
-	int root_index;
+	int root_index{};
 
 	void _updateNodeBounds(int node_index);
 	void _subdivideNode(int node_index);
