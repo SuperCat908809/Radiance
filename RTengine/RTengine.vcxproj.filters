@@ -55,6 +55,9 @@
     <ClInclude Include="triangle_bvh.h">
       <Filter>rt_engine</Filter>
     </ClInclude>
+    <ClInclude Include="bvh_metrics.h">
+      <Filter>rt_engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rt_engine">

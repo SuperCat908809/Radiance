@@ -168,6 +168,7 @@
     <CudaCompile Include="main_Kernel.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bvh_metrics.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="cuda_timer.h" />
     <ClInclude Include="cuError.h" />
