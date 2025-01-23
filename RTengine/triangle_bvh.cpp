@@ -228,6 +228,11 @@ float TriangleBVH::Factory::_evaluateSAH(int node_index, int candidate_axis, flo
 	return cost > 0 ? cost : 1e30f;
 }
 
+float TriangleBVH::Factory::_calculateNodeCost(int node_index) {
+	BVHNode& node = bvh_nodes[node_index];
+	return node.triCount * node.bounds.surface_area();
+}
+
 void TriangleBVH::Factory::_updateNodeBounds(int idx) {
 	BVHNode& node = bvh_nodes[idx];
 	node.bounds = {};
@@ -256,8 +261,8 @@ void TriangleBVH::Factory::_subdivideNode(int node_index) {
 	int axis{};
 	float split_pos{};
 	float split_cost = _findBestSplitPlane(node_index, axis, split_pos);
-	float current_cost = node.bounds.surface_area() * node.triCount;
-	if (split_cost > current_cost) return;
+	float nosplit_cost = _calculateNodeCost(node_index);
+	if (split_cost >= nosplit_cost) return;
 #endif
 
 	int i = node.leftFirst;

@@ -108,6 +108,8 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 
 	LOG(INFO) << ",Orbit time,Avg. Frametime,Avg. FPS,Mega-samples per second";
 
+	double average_msps = 0.0;
+
 	for (int orbit_index = 0; orbit_index < orbit_steps; orbit_index++) {
 
 		float rotation = glm::radians(orbit_index / (float)orbit_steps * 360.0f);
@@ -177,7 +179,12 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 			<< "," << cuda_ms / frames_per_step
 			<< "," << 1000 * frames_per_step / cuda_ms
 			<< "," << samples_per_second / 1e6f;
+
+		average_msps += samples_per_second / 1e6f;
 	}
+
+	average_msps /= orbit_steps;
+	LOG(INFO) << "Average Mega-samples per second: " << average_msps;
 
 	DELETE_BVH_METRICS;
 } // Renderer::Run //
