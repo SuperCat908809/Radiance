@@ -177,7 +177,7 @@ void TriangleBVH::Factory::_buildBVH() {
 	LOG(INFO) << "TriangleBVH::Factory::_buildBVH ==> BVH built in " << bvh_construction_timer.ElapsedTimeMS() << "ms.";
 }
 
-float TriangleBVH::Factory::_findBestSplitAxis(int node_index, int& axis, float& split_pos) {
+float TriangleBVH::Factory::_findBestSplitPlane(int node_index, int& axis, float& split_pos) {
 
 	BVHNode& node = bvh_nodes[node_index];
 
@@ -255,7 +255,7 @@ void TriangleBVH::Factory::_subdivideNode(int node_index) {
 #else
 	int axis{};
 	float split_pos{};
-	float split_cost = _findBestSplitAxis(node_index, axis, split_pos);
+	float split_cost = _findBestSplitPlane(node_index, axis, split_pos);
 	float current_cost = node.bounds.surface_area() * node.triCount;
 	if (split_cost > current_cost) return;
 #endif

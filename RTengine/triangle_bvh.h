@@ -87,7 +87,7 @@ class TriangleBVH::Factory {
 	void _generateTriangles(int triangle_count, int seed);
 	void _loadSimpleTri();
 
-	float _findBestSplitAxis(int node_index, int& axis, float& split_pos);
+	float _findBestSplitPlane(int node_index, int& axis, float& split_pos);
 	float _evaluateSAH(int node_index, int candidate_axis, float candidate_split_pos);
 
 	void _buildBVH();
