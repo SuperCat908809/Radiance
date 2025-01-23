@@ -69,7 +69,7 @@ __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec
 		BVH_METRIC_STATEMENT(int current_depth = depths[head]);
 		BVH_METRIC_MAX_DEPTH(current_depth);
 
-#if TARGET_BVH_ALGORITHM != SAH_V1_CLOSEST_CHILD_V2
+#if TARGET_BVH_ALGORITHM >= SAH_V1_CLOSEST_CHILD_V2
 		BVH_METRIC_ADD_BOX_TESTS(1);
 		BVH_METRIC_ADD_BRANCHES_ENCOUNTERED(1);
 		if (!node->bounds.intersect(r, rec)) continue;
