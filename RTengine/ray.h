@@ -11,10 +11,11 @@ struct ray {
 	struct {
 		union { glm::vec3 o, origin; };
 		union { glm::vec3 d, direction; };
+		union { glm::vec3 inv_d, inverse_direction; };
 	};
 
 	__device__ ray() : o(), d() {}
-	__device__ ray(glm::vec3 o, glm::vec3 d) : o(o), d(d) {}
+	__device__ ray(glm::vec3 o, glm::vec3 d) : o(o), d(d), inv_d(1.0f / d) {}
 	__device__ glm::vec3 at(float t) const { return o + d * t; }
 }; // struct ray //
 
