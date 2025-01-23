@@ -182,6 +182,7 @@
     <ClInclude Include="triangle_bvh.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="bvh_metrics.inl" />
     <None Include="renderer.inl" />
     <None Include="triangle_bvh.inl" />
   </ItemGroup>

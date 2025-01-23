@@ -82,5 +82,8 @@
     <None Include="renderer.inl">
       <Filter>rt_engine</Filter>
     </None>
+    <None Include="bvh_metrics.inl">
+      <Filter>rt_engine</Filter>
+    </None>
   </ItemGroup>
 </Project>
