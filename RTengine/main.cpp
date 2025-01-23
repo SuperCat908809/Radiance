@@ -45,7 +45,7 @@ int main() {
 			stbi_write_jpg(path.c_str(), width, height, 3, image.data(), 90);
 		}
 #else
-		renderer.RunFPSTest(120, 32, 1);
+		renderer.RunFPSTest(120, 32, 4);
 #endif
 	}
 

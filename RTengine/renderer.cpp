@@ -101,7 +101,7 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 	LOG(INFO) << "Renderer::RunFPSTest ==> Device properly woken up.";
 	LOG(INFO) << "Renderer::RunFPSTest ==> Beginning orbit of model: " << orbit_steps << " orbit steps " << frames_per_step << " frame steps.";
 
-	LOG(INFO) << ",Orbit time,Avg. Frametime,Avg. FPS";
+	LOG(INFO) << ",Orbit time,Avg. Frametime,Avg. FPS,Mega samples per second";
 
 	for (int orbit_index = 0; orbit_index < orbit_steps; orbit_index++) {
 
@@ -156,7 +156,13 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 
 		//LOG(INFO) << "Renderer::Run ==> kernel finished in " << render_host_timer.ElapsedTimeMS() << "ms on host and " << render_kernel_timer.ElapsedTimeMS() << "ms on device.";
 		//LOG(INFO) << "Renderer::Run ==> Orbit index : " << orbit_index + 1 << " avg frametime: " << cuda_ms / frames_per_step << "ms, avg FPS: " << 1000 * frames_per_step / cuda_ms << ".";
-		LOG(INFO) << "," << orbit_index + 1 << "," << cuda_ms / frames_per_step << "," << 1000 * frames_per_step / cuda_ms;
+
+		//LOG(INFO) << "," << orbit_index + 1 << "," << cuda_ms / frames_per_step << "," << 1000 * frames_per_step / cuda_ms;
+		LOG(INFO) <<
+			"," << orbit_index + 1
+			<< "," << cuda_ms / frames_per_step
+			<< "," << 1000 * frames_per_step / cuda_ms
+			<< "," << (renderbuffer.getWidth() * renderbuffer.getHeight() / 1e6f) * samples / (cuda_ms / 1e3f / frames_per_step);
 	}
 
 	DELETE_BVH_METRICS;
