@@ -14,8 +14,9 @@ namespace RT_ENGINE {
 #define SAH_V1 1
 #define SAH_V1_CLOSEST_CHILD 2
 #define SAH_V1_CLOSEST_CHILD_V2 3
+#define RAY_INV_D 4
 
-#define TARGET_BVH_ALGORITHM SAH_V1_CLOSEST_CHILD_V2
+#define TARGET_BVH_ALGORITHM RAY_INV_D
 
 struct aabb{
 	glm::vec3 min, max;

@@ -16,7 +16,11 @@ template <typename T> __device__ inline void cuda_swap(T& a, T& b) {
 #undef max
 
 __device__ bool aabb::intersect(const ray& r, const TraceRecord& rec) const {
+#if TARGET_BVH_ALGORITHM >= RAY_INV_D
 	glm::vec3 t1 = (min - r.o) * r.inv_d, t2 = (max - r.o) * r.inv_d;
+#else
+	glm::vec3 t1 = (min - r.o) / r.d, t2 = (max - r.o) / r.d;
+#endif
 	glm::vec3 tmin = glm::min(t1, t2), tmax = glm::max(t1, t2);
 
 	float ttmin = glm::max(glm::max(tmin.x, tmin.y), tmin.z);
@@ -25,7 +29,11 @@ __device__ bool aabb::intersect(const ray& r, const TraceRecord& rec) const {
 	return ttmax >= ttmin && ttmin < rec.t && ttmax > 0;
 }
 __device__ float aabb::intersect_dist(const ray& r, const TraceRecord& rec) const {
+#if TARGET_BVH_ALGORITHM >= RAY_INV_D
 	glm::vec3 t1 = (min - r.o) * r.inv_d, t2 = (max - r.o) * r.inv_d;
+#else
+	glm::vec3 t1 = (min - r.o) / r.d, t2 = (max - r.o) / r.d;
+#endif
 	glm::vec3 tmin = glm::min(t1, t2), tmax = glm::max(t1, t2);
 
 	float ttmin = glm::max(glm::max(tmin.x, tmin.y), tmin.z);
