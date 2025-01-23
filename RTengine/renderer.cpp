@@ -87,7 +87,7 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
 
 	//metrics_length = renderbuffer.getWidth() * renderbuffer.getHeight() / 8 / 8;
 	//metrics_width = renderbuffer.getWidth() / 8;
-	create_bvh_metrics(renderbuffer.getWidth() * renderbuffer.getHeight() / 8 / 8, renderbuffer.getWidth() / 8);
+	create_bvh_metrics(renderbuffer.getWidth() * renderbuffer.getHeight(), renderbuffer.getWidth());
 	reset_bvh_metrics();
 
 	LOG(INFO) << "Renderer::RunFPSTest ==> Rendering 5 frames to wake up the device.";
