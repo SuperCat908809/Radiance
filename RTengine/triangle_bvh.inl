@@ -91,7 +91,7 @@ __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec
 		BVH_METRIC_ADD_BRANCHES_ENCOUNTERED(1);
 		//if (mt) g_bvh_metrics.branches_encountered[gid]++;
 
-#if TARGET_BVH_ALGORITHM != SAH_V1_CLOSEST_CHILD_V2
+#if TARGET_BVH_ALGORITHM < SAH_V1_CLOSEST_CHILD_V2
 		if (!node->bounds.intersect(r, rec)) continue;
 #endif
 		
