@@ -93,7 +93,7 @@ class TriangleBVH::Factory {
 
 	float _findBestSplitPlane(int node_index, int& axis, float& split_pos);
 	float _evaluateSAH(int node_index, int candidate_axis, float candidate_split_pos);
-	float _calculateNodeCost(int node_index);
+	float _calculateNodeCost(const BVHNode& node);
 
 	void _buildBVH();
 	void _loadToDevice();
