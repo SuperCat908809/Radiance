@@ -182,18 +182,50 @@ float TriangleBVH::Factory::_findBestSplitPlane(int node_index, int& axis, float
 	BVHNode& node = bvh_nodes[node_index];
 
 	int best_axis = -1;
-	float best_pos = 0.0f, best_cost = 1e30f;
+	float best_pos = 0.0f;
+	float best_cost = 1e30f;
+
 	for (int candidate_axis = 0; candidate_axis < 3; candidate_axis++) {
+#if TARGET_BVH_ALGORITHM < BINNED_BVH_CONSTRUCTION_v1
 		for (int i = 0; i < node.triCount; i++) {
 			Tri& triangle = triangles[triangle_indices[node.leftFirst + i]];
 			float candidate_pos = triangle.centeroid[candidate_axis];
-			float cost = _evaluateSAH(node_index, candidate_axis, candidate_pos);
-			if (cost < best_cost) {
+			float candidate_cost = _evaluateSAH(node_index, candidate_axis, candidate_pos);
+
+			if (candidate_cost < best_cost) {
 				best_pos = candidate_pos;
 				best_axis = candidate_axis;
-				best_cost = cost;
+				best_cost = candidate_cost;
 			}
 		}
+#else
+#if TARGET_BVH_ALGORITHM == BINNED_BVH_CONSTRUCTION_V1
+		float bounds_min = node.bounds.min[candidate_axis];
+		float bounds_max = node.bounds.max[candidate_axis];
+#else
+		float bounds_min = 1e30f, bounds_max = 1e-30f;
+		for (int i = 0; i < node.triCount; i++) {
+			Tri& triangle = triangles[triangle_indices[node.leftFirst + i]];
+			bounds_min = glm::min(bounds_min, triangle.centeroid[candidate_axis]);
+			bounds_max = glm::max(bounds_max, triangle.centeroid[candidate_axis]);
+		}
+#endif
+
+		float scale = (bounds_max - bounds_min) / 100;
+		if (scale == 0.0f) continue;
+
+
+		for (int i = 1; i < 100; i++) {
+			float candidate_pos = bounds_min + i * scale;
+			float candidate_cost = _evaluateSAH(node_index, candidate_axis, candidate_pos);
+
+			if (candidate_cost < best_cost) {
+				best_pos = candidate_pos;
+				best_axis = candidate_axis;
+				best_cost = candidate_cost;
+			}
+		}
+#endif
 	}
 
 	axis = best_axis;
