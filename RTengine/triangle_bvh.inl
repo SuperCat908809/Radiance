@@ -91,9 +91,9 @@ __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec
 		BVHNode* right_node = &d_nodes[node->leftFirst + 1];
 
 #if TARGET_BVH_ALGORITHM < SAH_V1_CLOSEST_CHILD
-		depths[head] = current_depth + 1;
+		BVH_METRIC_STATEMENT(depths[head] = current_depth + 1);
 		nodes[head++] = left_node;
-		depths[head] = current_depth + 1;
+		BVH_METRIC_STATEMENT(depths[head] = current_depth + 1);
 		nodes[head++] = right_node;
 #else
 
