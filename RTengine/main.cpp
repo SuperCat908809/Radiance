@@ -45,7 +45,16 @@ int main() {
 			stbi_write_jpg(path.c_str(), width, height, 3, image.data(), 90);
 		}
 #else
+
+#if TARGET_BVH_ALGORITHM < FOUR_SPP
+		renderer.RunFPSTest(120, 32, 1);
+#elif TARGET_BVH_ALGORITHM == FOUR_SPP
 		renderer.RunFPSTest(120, 32, 4);
+#elif TARGET_BVH_ALGORITHM == WARP_LOCALITY
+		renderer.RunFPSTest(120, 1, 1);
+#elif TARGET_BVH_ALGORITHM >= WARP_LOCALITY_SPP
+		renderer.RunFPSTest(120, 4, 2);
+#endif
 #endif
 	}
 

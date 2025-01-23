@@ -75,11 +75,16 @@ void Renderer::Run(float t) {
 
 void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 
+#if TARGET_BVH_ALGORITHM >= WARP_LOCALITY
+	dim3 threads = { 8,8,1 };
+	dim3 blocks = { (unsigned int)renderbuffer.getWidth(), (unsigned int)renderbuffer.getHeight(), 1 };
+#else
 	dim3 threads = { 8,8,1 };
 	dim3 blocks{};
 	blocks.x = (renderbuffer.getWidth() + threads.x - 1) / threads.x;
 	blocks.y = (renderbuffer.getHeight() + threads.y - 1) / threads.y;
 	blocks.z = 1;
+#endif
 
 	CREATE_BVH_METRICS(renderbuffer.getWidth() * renderbuffer.getHeight(), renderbuffer.getWidth());
 	RESET_BVH_METRICS;
@@ -101,7 +106,7 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 	LOG(INFO) << "Renderer::RunFPSTest ==> Device properly woken up.";
 	LOG(INFO) << "Renderer::RunFPSTest ==> Beginning orbit of model: " << orbit_steps << " orbit steps " << frames_per_step << " frame steps.";
 
-	LOG(INFO) << ",Orbit time,Avg. Frametime,Avg. FPS,Mega samples per second";
+	LOG(INFO) << ",Orbit time,Avg. Frametime,Avg. FPS,Mega-samples per second";
 
 	for (int orbit_index = 0; orbit_index < orbit_steps; orbit_index++) {
 
@@ -158,11 +163,20 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 		//LOG(INFO) << "Renderer::Run ==> Orbit index : " << orbit_index + 1 << " avg frametime: " << cuda_ms / frames_per_step << "ms, avg FPS: " << 1000 * frames_per_step / cuda_ms << ".";
 
 		//LOG(INFO) << "," << orbit_index + 1 << "," << cuda_ms / frames_per_step << "," << 1000 * frames_per_step / cuda_ms;
-		LOG(INFO) <<
-			"," << orbit_index + 1
+
+#if TARGET_BVH_ALGORITHM < WARP_LOCALITY
+		int total_samples = renderbuffer.getWidth() * renderbuffer.getHeight() * samples;
+#else
+		int total_samples = renderbuffer.getWidth() * renderbuffer.getHeight() * samples * threads.x * threads.y;
+#endif
+		float seconds_per_kernel = cuda_ms * 1e-3f / frames_per_step;
+		float samples_per_second = total_samples / seconds_per_kernel;
+
+		LOG(INFO)
+			<< "," << orbit_index + 1
 			<< "," << cuda_ms / frames_per_step
 			<< "," << 1000 * frames_per_step / cuda_ms
-			<< "," << (renderbuffer.getWidth() * renderbuffer.getHeight() / 1e6f) * samples / (cuda_ms / 1e3f / frames_per_step);
+			<< "," << samples_per_second / 1e6f;
 	}
 
 	DELETE_BVH_METRICS;
