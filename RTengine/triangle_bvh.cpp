@@ -244,7 +244,7 @@ void TriangleBVH::Factory::_updateNodeBounds(int idx) {
 
 void TriangleBVH::Factory::_subdivideNode(int node_index) {
 	BVHNode& node = bvh_nodes[node_index];
-#if 0
+#if TARGET_BVH_ALGORITHM <= MIDDLE_SPLIT
 	if (node.triCount <= 2) return;
 
 	glm::vec3 extent = node.bounds.max - node.bounds.min;

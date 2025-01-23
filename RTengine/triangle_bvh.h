@@ -10,6 +10,13 @@
 
 namespace RT_ENGINE {
 
+#define MIDDLE_SPLIT 0
+#define SAH_V1 1
+#define SAH_V1_CLOSEST_CHILD 2
+#define SAH_V1_CLOSEST_CHILD_V2 3
+
+#define TARGET_BVH_ALGORITHM MIDDLE_SPLIT
+
 struct aabb{
 	glm::vec3 min, max;
 

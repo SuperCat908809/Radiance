@@ -68,6 +68,7 @@ __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec
 	nodes[head++] = &d_nodes[root_index];
 
 	if (!nodes[0]->bounds.intersect(r, rec)) return false;
+	BVH_METRIC_ADD_BOX_TESTS(1);
 
 	int max_head = 0;
 
@@ -89,7 +90,10 @@ __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec
 		//if (mt) g_bvh_metrics.box_tests[gid]++;
 		BVH_METRIC_ADD_BRANCHES_ENCOUNTERED(1);
 		//if (mt) g_bvh_metrics.branches_encountered[gid]++;
+
+#if TARGET_BVH_ALGORITHM != SAH_V1_CLOSEST_CHILD_V2
 		if (!node->bounds.intersect(r, rec)) continue;
+#endif
 		
 		BVH_METRIC_ADD_BRANCHES_ENCOUNTERED(1);
 		//if (mt) g_bvh_metrics.branches_encountered[gid]++;
@@ -108,7 +112,7 @@ __device__ bool TriangleBVH::handle_cu::intersect(const ray& r, TraceRecord& rec
 		BVHNode* left_node = &d_nodes[node->leftFirst + 0];
 		BVHNode* right_node = &d_nodes[node->leftFirst + 1];
 
-#if 0
+#if TARGET_BVH_ALGORITHM < SAH_V1_CLOSEST_CHILD
 		depths[head] = current_depth + 1;
 		nodes[head++] = left_node;
 		depths[head] = current_depth + 1;
