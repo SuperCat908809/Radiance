@@ -186,7 +186,7 @@ float TriangleBVH::Factory::_findBestSplitPlane(int node_index, int& axis, float
 	float best_cost = 1e30f;
 
 	for (int candidate_axis = 0; candidate_axis < 3; candidate_axis++) {
-#if TARGET_BVH_ALGORITHM < BINNED_BVH_CONSTRUCTION_v1
+#if TARGET_BVH_ALGORITHM < BINNED_BVH_CONSTRUCTION_V1
 		for (int i = 0; i < node.triCount; i++) {
 			Tri& triangle = triangles[triangle_indices[node.leftFirst + i]];
 			float candidate_pos = triangle.centeroid[candidate_axis];
