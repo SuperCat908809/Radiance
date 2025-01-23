@@ -38,10 +38,10 @@ void log_bvh_metrics() {
 	double mean_max_depth = 0.0f;
 	double mean_branches_encountered = 0.0f;
 
-	int min_box_tests = 0xffffffff;
-	int min_triangle_tests = 0xffffffff;
-	int min_max_depth = 0xffffffff;
-	int min_branches_encountered = 0xffffffff;
+	int min_box_tests = INT_MAX;
+	int min_triangle_tests = INT_MAX;
+	int min_max_depth = INT_MAX;
+	int min_branches_encountered = INT_MAX;
 
 	int max_box_tests = 0x0;
 	int max_triangle_tests = 0x0;
