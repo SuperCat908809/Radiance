@@ -2,6 +2,8 @@
 #define BVH_METRICS_CUDA_INL
 
 #include "bvh_metrics.h"
+
+#ifdef COLLECT_BVH_METRICS
 #include <device_launch_parameters.h>
 
 
@@ -102,11 +104,11 @@ void log_bvh_metrics() {
 	if (participants == 0) throw std::runtime_error("participants is zero.");
 
 	LOG(INFO)
-		<< "," << mean_box_tests << "," << stddev_box_tests << "," << min_box_tests << "," << max_box_tests
-		<< "," << mean_triangle_tests << "," << stddev_triangle_tests << "," << min_triangle_tests << "," << max_triangle_tests
-		<< "," << mean_max_depth << "," << stddev_max_depth << "," << min_max_depth << "," << max_max_depth
-		<< "," << mean_branches_encountered << "," << stddev_branches_encountered << "," << min_branches_encountered << "," << max_branches_encountered;
-
+		<< "," << mean_box_tests //<< "," << stddev_box_tests << "," << min_box_tests << "," << max_box_tests
+		<< "," << mean_triangle_tests //<< "," << stddev_triangle_tests << "," << min_triangle_tests << "," << max_triangle_tests
+		<< "," << mean_max_depth //<< "," << stddev_max_depth << "," << min_max_depth << "," << max_max_depth
+		<< "," << mean_branches_encountered //<< "," << stddev_branches_encountered << "," << min_branches_encountered << "," << max_branches_encountered;
+		;
 }
 void reset_bvh_metrics() {
 	CUDA_ASSERT(cudaMemset(g_bvh_metrics.box_tests, 0, metrics_length * sizeof(int)));
@@ -128,5 +130,6 @@ void delete_bvh_metrics() {
 
 } // namespace RT_ENGINE //
 
+#endif // ifdef COLLECT_BVH_METRICS //
 
 #endif // ifndef BVH_METRICS_CUDA_INL //

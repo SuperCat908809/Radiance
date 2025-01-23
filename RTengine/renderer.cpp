@@ -75,22 +75,22 @@ void Renderer::Run(float t) {
 
 void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
 
-	LOG(INFO) << "Renderer::RunFPSTest ==> Beginning orbit of model: " << orbit_steps << " orbit steps " << frames_per_step << " frame steps.";
-
 	dim3 threads = { 8,8,1 };
 	dim3 blocks{};
 	blocks.x = (renderbuffer.getWidth() + threads.x - 1) / threads.x;
 	blocks.y = (renderbuffer.getHeight() + threads.y - 1) / threads.y;
 	blocks.z = 1;
 
-	cam = Camera_cu(glm::vec3(0, 0, -4), glm::vec3(-1.5f, 0, 0), glm::vec3(0, 1, 0), glm::radians(36.0f), renderbuffer.getWidth() / (float)renderbuffer.getHeight());
-
-	//metrics_length = renderbuffer.getWidth() * renderbuffer.getHeight() / 8 / 8;
-	//metrics_width = renderbuffer.getWidth() / 8;
-	create_bvh_metrics(renderbuffer.getWidth() * renderbuffer.getHeight(), renderbuffer.getWidth());
-	reset_bvh_metrics();
+	CREATE_BVH_METRICS(renderbuffer.getWidth() * renderbuffer.getHeight(), renderbuffer.getWidth());
+	RESET_BVH_METRICS;
 
 	LOG(INFO) << "Renderer::RunFPSTest ==> Rendering 5 frames to wake up the device.";
+
+	cam = Camera_cu(
+		glm::vec3(0, 0, -4), glm::vec3(-1.5f, 0, 0), glm::vec3(0, 1, 0),
+		glm::radians(36.0f),
+		renderbuffer.getWidth() / (float)renderbuffer.getHeight()
+	);
 
 	for (int i = 0; i < 5; i++) {
 		_launch_kernel(blocks, threads, renderbuffer.getDeviceHandle(), scene.getDeviceHandle(), cam);
@@ -99,7 +99,7 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
 	}
 
 	LOG(INFO) << "Renderer::RunFPSTest ==> Device properly woken up.";
-	LOG(INFO) << "Renderer::RunFPSTest ==> Starting performance capture.";
+	LOG(INFO) << "Renderer::RunFPSTest ==> Beginning orbit of model: " << orbit_steps << " orbit steps " << frames_per_step << " frame steps.";
 
 	LOG(INFO) << ",Orbit time,Avg. Frametime,Avg. FPS";
 
@@ -116,7 +116,7 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
 
 		cam = Camera_cu(lookfrom, lookat, up, vfov, aspect_ratio);
 
-		reset_bvh_metrics();
+		RESET_BVH_METRICS;
 
 
 		float cuda_ms = 0.0f;
@@ -135,8 +135,9 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
 			cuda_ms += render_kernel_timer.ElapsedTimeMS();
 		}
 
-		log_bvh_metrics();
+		LOG_BVH_METRICS;
 
+#ifdef SAVE_RENDERS
 		std::vector<glm::vec3> float_image(renderbuffer.getWidth() * renderbuffer.getHeight());
 		renderbuffer.Download(float_image);
 
@@ -151,11 +152,12 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
 
 		stbi_flip_vertically_on_write(true);
 		stbi_write_jpg(path.c_str(), renderbuffer.getWidth(), renderbuffer.getHeight(), 3, image.data(), 90);
+#endif // ifdef SAVE_RENDERS //
 
 		//LOG(INFO) << "Renderer::Run ==> kernel finished in " << render_host_timer.ElapsedTimeMS() << "ms on host and " << render_kernel_timer.ElapsedTimeMS() << "ms on device.";
-		//LOG(INFO) << "Renderer::Run ==> Orbit index : " << orbit_index + 1 << " avg frame time: " << cuda_ms / frames_per_step << "ms, avg FPS: " << 1000 * frames_per_step / cuda_ms << ".";
-		//LOG(INFO) << "," << orbit_index + 1 << "," << cuda_ms / frames_per_step << "," << 1000 * frames_per_step / cuda_ms;
+		//LOG(INFO) << "Renderer::Run ==> Orbit index : " << orbit_index + 1 << " avg frametime: " << cuda_ms / frames_per_step << "ms, avg FPS: " << 1000 * frames_per_step / cuda_ms << ".";
+		LOG(INFO) << "," << orbit_index + 1 << "," << cuda_ms / frames_per_step << "," << 1000 * frames_per_step / cuda_ms;
 	}
 
-	delete_bvh_metrics();
+	DELETE_BVH_METRICS;
 } // Renderer::Run //

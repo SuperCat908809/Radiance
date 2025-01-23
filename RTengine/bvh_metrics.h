@@ -1,6 +1,9 @@
 #ifndef BVH_METRICS_CUDA_H
 #define BVH_METRICS_CUDA_H
 
+//#define COLLECT_BVH_METRICS
+#ifdef COLLECT_BVH_METRICS
+
 #include <cuda_runtime.h>
 
 #include "easylogging/easylogging++.h"
@@ -40,11 +43,37 @@ void log_bvh_metrics();
 void reset_bvh_metrics();
 void delete_bvh_metrics();
 
+#define CREATE_BVH_METRICS(length, width) create_bvh_metrics(length, width)
+#define LOG_BVH_METRICS log_bvh_metrics()
+#define RESET_BVH_METRICS reset_bvh_metrics()
+#define DELETE_BVH_METRICS delete_bvh_metrics()
+
+#define BVH_METRIC_STATEMENT(func) func
+
 } // namespace RT_ENGINE //
+
+#else
+
+#define BVH_METRIC_STATEMENT(func)
+
+#define BVH_METRIC_INIT
+#define BVH_METRIC_ADD_BOX_TESTS(n)
+#define BVH_METRIC_ADD_TRIANGLE_TEST(n)
+#define BVH_METRIC_MAX_DEPTH(candidate_depth)
+#define BVH_METRIC_ADD_BRANCHES_ENCOUNTERED(n)
+
+#define CREATE_BVH_METRICS(length, width)
+#define LOG_BVH_METRICS
+#define RESET_BVH_METRICS
+#define DELETE_BVH_METRICS
+
+#endif // ifdef COLLECT_BVH_METRICS //
 
 
 #ifdef RT_ENGINE_IMPLEMENTATION
+#ifdef COLLECT_BVH_METRICS
 #include "bvh_metrics.inl"
+#endif // ifdef COLLECT_BVH_METRICS //
 #endif // ifdef RT_ENGINE_IMPLEMENTATION //
 
 #endif // endif BVH_METRICS_CUDA_H //
