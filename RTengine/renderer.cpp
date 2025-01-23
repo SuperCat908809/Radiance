@@ -23,7 +23,7 @@
 
 
 namespace RT_ENGINE {
-	void _launch_kernel(dim3, dim3, ColorRenderbuffer::handle_cu, Scene::handle_cu, Camera_cu);
+	void _launch_kernel(dim3, dim3, ColorRenderbuffer::handle_cu, Scene::handle_cu, Camera_cu, int);
 }
 
 using namespace RT_ENGINE;
@@ -64,7 +64,7 @@ void Renderer::Run(float t) {
 	render_kernel_timer.Start();
 	render_host_timer.Start();
 	//kernel<<<blocks, threads>>>(renderbuffer.getDeviceHandle(), scene.getDeviceHandle(), cam);
-	_launch_kernel(blocks, threads, renderbuffer.getDeviceHandle(), scene.getDeviceHandle(), cam);
+	_launch_kernel(blocks, threads, renderbuffer.getDeviceHandle(), scene.getDeviceHandle(), cam, 1);
 	render_host_timer.End();
 	render_kernel_timer.End();
 	CUDA_ASSERT(cudaGetLastError());
@@ -73,7 +73,7 @@ void Renderer::Run(float t) {
 	LOG(INFO) << "Renderer::Run ==> kernel finished in " << render_host_timer.ElapsedTimeMS() << "ms on host and " << render_kernel_timer.ElapsedTimeMS() << "ms on device.";
 } // Renderer::Run //
 
-void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
+void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 
 	dim3 threads = { 8,8,1 };
 	dim3 blocks{};
@@ -93,7 +93,7 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
 	);
 
 	for (int i = 0; i < 5; i++) {
-		_launch_kernel(blocks, threads, renderbuffer.getDeviceHandle(), scene.getDeviceHandle(), cam);
+		_launch_kernel(blocks, threads, renderbuffer.getDeviceHandle(), scene.getDeviceHandle(), cam, 1);
 		CUDA_ASSERT(cudaGetLastError());
 		CUDA_ASSERT(cudaDeviceSynchronize());
 	}
@@ -126,7 +126,7 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step) {
 			CudaTimer render_kernel_timer{};
 
 			render_kernel_timer.Start();
-			_launch_kernel(blocks, threads, renderbuffer.getDeviceHandle(), scene.getDeviceHandle(), cam);
+			_launch_kernel(blocks, threads, renderbuffer.getDeviceHandle(), scene.getDeviceHandle(), cam, samples);
 			render_kernel_timer.End();
 
 			CUDA_ASSERT(cudaGetLastError());

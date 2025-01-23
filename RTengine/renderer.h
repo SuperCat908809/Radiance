@@ -30,7 +30,7 @@ public:
 	const ColorRenderbuffer& getRenderbuffer() const;
 
 	void Run(float t);
-	void RunFPSTest(int orbit_steps, int frames_per_step);
+	void RunFPSTest(int orbit_steps, int frames_per_step, int render_samples);
 
 }; // class Renderer //
 } // namespace RT_ENGINE //
