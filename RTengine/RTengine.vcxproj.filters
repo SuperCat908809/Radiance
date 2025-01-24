@@ -2,23 +2,23 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="scene.cpp">
-      <Filter>rt_engine</Filter>
-    </ClCompile>
-    <ClCompile Include="renderbuffer.cpp">
-      <Filter>rt_engine</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\easylogging\easylogging++.cc">
       <Filter>libraries</Filter>
     </ClCompile>
     <ClCompile Include="header_library_impl.cpp">
       <Filter>libraries</Filter>
     </ClCompile>
+    <ClCompile Include="scene.cpp">
+      <Filter>rt_engine\geometry</Filter>
+    </ClCompile>
     <ClCompile Include="triangle_bvh.cpp">
-      <Filter>rt_engine</Filter>
+      <Filter>rt_engine\geometry</Filter>
     </ClCompile>
     <ClCompile Include="renderer.cpp">
-      <Filter>rt_engine</Filter>
+      <Filter>rt_engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderbuffer.cpp">
+      <Filter>rt_engine\renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -26,15 +26,6 @@
       <Filter>rt_engine</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
-      <Filter>rt_engine</Filter>
-    </ClInclude>
-    <ClInclude Include="scene.h">
-      <Filter>rt_engine</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer.h">
-      <Filter>rt_engine</Filter>
-    </ClInclude>
-    <ClInclude Include="renderbuffer.h">
       <Filter>rt_engine</Filter>
     </ClInclude>
     <ClInclude Include="main_Kernel.h">
@@ -49,14 +40,23 @@
     <ClInclude Include="host_timer.h">
       <Filter>utilities</Filter>
     </ClInclude>
-    <ClInclude Include="triangles.h">
-      <Filter>rt_engine</Filter>
+    <ClInclude Include="bvh_metrics.h">
+      <Filter>rt_engine\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>rt_engine\geometry</Filter>
     </ClInclude>
     <ClInclude Include="triangle_bvh.h">
-      <Filter>rt_engine</Filter>
+      <Filter>rt_engine\geometry</Filter>
     </ClInclude>
-    <ClInclude Include="bvh_metrics.h">
-      <Filter>rt_engine</Filter>
+    <ClInclude Include="triangles.h">
+      <Filter>rt_engine\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer.h">
+      <Filter>rt_engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderbuffer.h">
+      <Filter>rt_engine\renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +69,12 @@
     <Filter Include="libraries">
       <UniqueIdentifier>{2f48c4df-12c5-45f5-8c9e-9a965ec50cc1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rt_engine\geometry">
+      <UniqueIdentifier>{1b8ce58e-607f-4f3d-b43e-2bcffbca2d3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rt_engine\renderer">
+      <UniqueIdentifier>{3f4f0a08-5ead-4b83-9c30-1b56c60aeec6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main_Kernel.cu">
@@ -76,14 +82,14 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="bvh_metrics.inl">
+      <Filter>rt_engine\geometry</Filter>
+    </None>
     <None Include="triangle_bvh.inl">
-      <Filter>rt_engine</Filter>
+      <Filter>rt_engine\geometry</Filter>
     </None>
     <None Include="renderer.inl">
-      <Filter>rt_engine</Filter>
-    </None>
-    <None Include="bvh_metrics.inl">
-      <Filter>rt_engine</Filter>
+      <Filter>rt_engine\renderer</Filter>
     </None>
   </ItemGroup>
 </Project>
