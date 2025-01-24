@@ -112,16 +112,19 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 
 	for (int orbit_index = 0; orbit_index < orbit_steps; orbit_index++) {
 
+		float time = orbit_index / (float)orbit_steps * glm::radians(720.0f);
 		float rotation = glm::radians(orbit_index / (float)orbit_steps * 360.0f);
 
 		glm::vec3 lookfrom = glm::vec3(0, 2.8f, -6);
-		lookfrom = glm::rotate(lookfrom, rotation, glm::vec3(0, 1, 0));
+		//lookfrom = glm::rotate(lookfrom, rotation, glm::vec3(0, 1, 0));
 		glm::vec3 lookat = glm::vec3(0, 2.8f, 0);
 		glm::vec3 up(0, 1, 0);
 		float vfov = glm::radians(45.0f);
 		float aspect_ratio = renderbuffer.getWidth() / (float)renderbuffer.getHeight();
 
 		cam = Camera_cu(lookfrom, lookat, up, vfov, aspect_ratio);
+
+		scene.Animate(time);
 
 		RESET_BVH_METRICS;
 

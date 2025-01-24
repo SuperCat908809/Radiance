@@ -10,4 +10,8 @@ Scene& Scene::operator=(Scene&& o) noexcept {
 Scene::~Scene() = default;
 
 Scene::Scene() : bvh(std::move(TriangleBVH::Factory::BuildBVHFromBigBenTri(0.0f))) {}
+
+void Scene::Animate(float time) {
+	bvh = std::move(TriangleBVH::Factory::BuildBVHFromBigBenTri(time));
+}
 Scene::handle_cu Scene::getDeviceHandle() const { return handle_cu{ bvh.getDeviceHandle() }; }

@@ -106,7 +106,7 @@ public:
 
 	static TriangleBVH BuildBVHFromRandomTriangles(int triangle_count, int seed);
 	static TriangleBVH BuildBVHFromUnityTri();
-	static TriangleBVH BuildBVHFromBigBenTri();
+	static TriangleBVH BuildBVHFromBigBenTri(float time);
 };
 
 struct TriangleBVH::handle_cu {

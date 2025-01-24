@@ -31,9 +31,14 @@ TriangleBVH::TriangleBVH(TriangleBVH&& o) noexcept {
 }
 
 TriangleBVH& TriangleBVH::operator=(TriangleBVH&& o) noexcept {
+
+	LOG(INFO) << "TriangleBVH::operator= ==> Freeing device BVH memory.";
+
 	if (d_nodes != nullptr) CUDA_ASSERT(cudaFree(d_nodes));
 	if (d_tris != nullptr) CUDA_ASSERT(cudaFree(d_tris));
 	if (d_indices != nullptr) CUDA_ASSERT(cudaFree(d_indices));
+
+	LOG(INFO) << "TriangleBVH::operator= ==> deletion finished.";
 
 	d_nodes = o.d_nodes;
 	d_tris = o.d_tris;
@@ -52,10 +57,13 @@ TriangleBVH& TriangleBVH::operator=(TriangleBVH&& o) noexcept {
 
 TriangleBVH::~TriangleBVH() {
 	if (d_nodes == nullptr && d_tris == nullptr && d_indices == nullptr) return;
+
 	LOG(INFO) << "TriangleBVH::~TriangleBVH ==> Freeing device BVH memory.";
+
 	if (d_nodes != nullptr) CUDA_ASSERT(cudaFree(d_nodes));
 	if (d_tris != nullptr) CUDA_ASSERT(cudaFree(d_tris));
 	if (d_indices != nullptr) CUDA_ASSERT(cudaFree(d_indices));
+
 	LOG(INFO) << "TriangleBVH::~TriangleBVH ==> deletion finished.";
 }
 
@@ -83,11 +91,21 @@ TriangleBVH TriangleBVH::Factory::BuildBVHFromUnityTri() {
 	return TriangleBVH{ factory.d_nodes,factory.d_tris,factory.d_indices,factory.root_index,(int)factory.triangles.size(),(int)factory.bvh_nodes.size() };
 }
 
-TriangleBVH TriangleBVH::Factory::BuildBVHFromBigBenTri() {
-	
+TriangleBVH TriangleBVH::Factory::BuildBVHFromBigBenTri(float time) {
+
 	TriangleBVH::Factory factory{};
 
 	factory._loadSimpleTri("../Assets/test_geometry/bigben.tri", 20944);
+
+	float a = sinf(time) * 0.5f;
+	for (int i = 0; i < factory.triangles.size(); i++)
+	for (int j = 0; j < 3; j++) {
+		glm::vec3 o = (&factory.triangles[i].v0)[j];
+		float s = a * (o.y - 0.2f) * 0.2f;
+		float x = o.x * cosf(s) - o.y * sinf(s);
+		float y = o.x * sinf(s) + o.y * cosf(s);
+		(&factory.triangles[i].v0)[j] = glm::vec3(x, y, o.z);
+	}
 
 	factory._buildBVH();
 	factory._loadToDevice();
@@ -149,7 +167,6 @@ void TriangleBVH::Factory::_loadSimpleTri(std::string path, int tri_count) {
 	fopen_s(&file, path.c_str(), "r");
 	if (file == nullptr) {
 		LOG(FATAL) << "Could not open model file.";
-		assert(0);
 		throw std::runtime_error("Could not open model file.");
 	}
 

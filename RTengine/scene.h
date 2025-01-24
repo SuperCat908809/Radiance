@@ -31,6 +31,8 @@ public:
 
 	Scene();
 
+	void Animate(float time);
+
 	handle_cu getDeviceHandle() const;
 
 }; // class Scene //
