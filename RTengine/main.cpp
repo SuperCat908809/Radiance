@@ -53,7 +53,8 @@ int main() {
 #elif TARGET_BVH_ALGORITHM == WARP_LOCALITY
 		renderer.RunFPSTest(120, 1, 1);
 #elif TARGET_BVH_ALGORITHM >= WARP_LOCALITY_SPP
-		renderer.RunFPSTest(120, 4, 2);
+		//renderer.RunFPSTest(120, 4, 2);
+		renderer.RunFPSTest(120, 1, 1);
 #endif
 #endif
 	}
