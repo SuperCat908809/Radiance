@@ -180,56 +180,100 @@ void TriangleBVH::Factory::_buildBVH() {
 float TriangleBVH::Factory::_findBestSplitPlane(int node_index, int& axis, float& split_pos) {
 
 	BVHNode& node = bvh_nodes[node_index];
-
-	int best_axis = -1;
-	float best_pos = 0.0f;
 	float best_cost = 1e30f;
 
 	for (int candidate_axis = 0; candidate_axis < 3; candidate_axis++) {
-#if TARGET_BVH_ALGORITHM < BINNED_BVH_CONSTRUCTION_V1
+#if TARGET_BVH_ALGORITHM < CONSTANT_BVH_CONSTRUCTION_V1
 		for (int i = 0; i < node.triCount; i++) {
 			Tri& triangle = triangles[triangle_indices[node.leftFirst + i]];
 			float candidate_pos = triangle.centeroid[candidate_axis];
 			float candidate_cost = _evaluateSAH(node_index, candidate_axis, candidate_pos);
 
 			if (candidate_cost < best_cost) {
-				best_pos = candidate_pos;
-				best_axis = candidate_axis;
+				axis = candidate_axis;
+				split_pos = candidate_pos;
 				best_cost = candidate_cost;
 			}
 		}
 #else
-#if TARGET_BVH_ALGORITHM == BINNED_BVH_CONSTRUCTION_V1
+#if TARGET_BVH_ALGORITHM == CONSTANT_BVH_CONSTRUCTION_V1
 		float bounds_min = node.bounds.min[candidate_axis];
 		float bounds_max = node.bounds.max[candidate_axis];
-#else
-		float bounds_min = 1e30f, bounds_max = 1e-30f;
+#elif TARGET_BVH_ALGORITHM >= CONSTANT_BVH_CONSTRUCTION_V2
+		float bounds_min = 1e30f, bounds_max = -1e30f;
+
 		for (int i = 0; i < node.triCount; i++) {
 			Tri& triangle = triangles[triangle_indices[node.leftFirst + i]];
 			bounds_min = glm::min(bounds_min, triangle.centeroid[candidate_axis]);
 			bounds_max = glm::max(bounds_max, triangle.centeroid[candidate_axis]);
 		}
+
+		if (bounds_max == bounds_min)continue;
 #endif
 
+#if TARGET_BVH_ALGORITHM < BINNED_BVH_CONSTRUCTION
 		float scale = (bounds_max - bounds_min) / 100;
-		if (scale == 0.0f) continue;
-
 
 		for (int i = 1; i < 100; i++) {
 			float candidate_pos = bounds_min + i * scale;
 			float candidate_cost = _evaluateSAH(node_index, candidate_axis, candidate_pos);
 
 			if (candidate_cost < best_cost) {
-				best_pos = candidate_pos;
-				best_axis = candidate_axis;
+				axis = candidate_axis;
+				split_pos = candidate_pos;
 				best_cost = candidate_cost;
 			}
 		}
+#else
+
+		struct Bin { aabb bounds{}; int tri_count{}; };
+
+		const int BINS = 8;
+		Bin bins[BINS];
+
+		float scale = BINS / (bounds_max - bounds_min);
+		for (int i = 0; i < node.triCount; i++) {
+			Tri& triangle = triangles[triangle_indices[node.leftFirst + i]];
+			int bin_index = glm::min(BINS - 1, (int)((triangle.centeroid[candidate_axis] - bounds_min) * scale));
+			bins[bin_index].tri_count++;
+			bins[bin_index].bounds.expand(triangle.v0);
+			bins[bin_index].bounds.expand(triangle.v1);
+			bins[bin_index].bounds.expand(triangle.v2);
+		}
+
+		aabb left_bounds[BINS - 1], right_bounds[BINS - 1];
+		int left_count[BINS - 1], right_count[BINS - 1];
+		aabb left_box{}, right_box{};
+		int left_sum{}, right_sum{};
+
+		for (int i = 0; i < BINS - 1; i++) {
+
+			left_sum += bins[i].tri_count;
+			left_count[i] = left_sum;
+			left_box.expand(bins[i].bounds);
+			left_bounds[i] = left_box;
+
+			right_sum += bins[BINS - 1 - i].tri_count;
+			right_count[BINS - 2 - i] = right_sum;
+			right_box.expand(bins[BINS - 1 - i].bounds);
+			right_bounds[BINS - 2 - i] = right_box;
+		}
+
+		scale = (bounds_max - bounds_min) / BINS;
+		for (int i = 0; i < BINS - 1; i++) {
+			BVHNode tmp_left{ left_bounds[i],0,left_count[i] };
+			BVHNode tmp_right{ right_bounds[i],0,right_count[i] };
+			float plane_cost = _calculateNodeCost(tmp_left) + _calculateNodeCost(tmp_right);
+			if (plane_cost < best_cost) {
+				axis = candidate_axis;
+				split_pos = bounds_min + scale * (i + 1);
+				best_cost = plane_cost;
+			}
+		}
+#endif
 #endif
 	}
 
-	axis = best_axis;
-	split_pos = best_pos;
 	return best_cost;
 }
 
