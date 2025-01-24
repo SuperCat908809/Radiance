@@ -9,5 +9,5 @@ Scene& Scene::operator=(Scene&& o) noexcept {
 }
 Scene::~Scene() = default;
 
-Scene::Scene() : bvh(std::move(TriangleBVH::Factory::BuildBVHFromSimpleTri())) {}
+Scene::Scene() : bvh(std::move(TriangleBVH::Factory::BuildBVHFromBigBenTri(0.0f))) {}
 Scene::handle_cu Scene::getDeviceHandle() const { return handle_cu{ bvh.getDeviceHandle() }; }

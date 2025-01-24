@@ -92,7 +92,7 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 	LOG(INFO) << "Renderer::RunFPSTest ==> Rendering 5 frames to wake up the device.";
 
 	cam = Camera_cu(
-		glm::vec3(0, 0, -4), glm::vec3(-1.5f, 0, 0), glm::vec3(0, 1, 0),
+		glm::vec3(0, 2.8f, -4), glm::vec3(0, 2.8f, 0), glm::vec3(0, 1, 0),
 		glm::radians(36.0f),
 		renderbuffer.getWidth() / (float)renderbuffer.getHeight()
 	);
@@ -114,11 +114,11 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 
 		float rotation = glm::radians(orbit_index / (float)orbit_steps * 360.0f);
 
-		glm::vec3 lookfrom(0, 0, -4);
+		glm::vec3 lookfrom = glm::vec3(0, 2.8f, -6);
 		lookfrom = glm::rotate(lookfrom, rotation, glm::vec3(0, 1, 0));
-		glm::vec3 lookat(-1.5f, 0, 0);
+		glm::vec3 lookat = glm::vec3(0, 2.8f, 0);
 		glm::vec3 up(0, 1, 0);
-		float vfov = glm::radians(36.0f);
+		float vfov = glm::radians(45.0f);
 		float aspect_ratio = renderbuffer.getWidth() / (float)renderbuffer.getHeight();
 
 		cam = Camera_cu(lookfrom, lookat, up, vfov, aspect_ratio);
@@ -144,7 +144,8 @@ void Renderer::RunFPSTest(int orbit_steps, int frames_per_step, int samples) {
 
 		LOG_BVH_METRICS;
 
-#ifdef SAVE_RENDERS
+#define SAVE_TEST_RENDERS
+#ifdef SAVE_TEST_RENDERS
 		std::vector<glm::vec3> float_image(renderbuffer.getWidth() * renderbuffer.getHeight());
 		renderbuffer.Download(float_image);
 

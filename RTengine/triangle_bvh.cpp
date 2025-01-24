@@ -72,11 +72,23 @@ TriangleBVH TriangleBVH::Factory::BuildBVHFromRandomTriangles(int triangle_count
 	return TriangleBVH{ factory.d_nodes,factory.d_tris,factory.d_indices,factory.root_index,(int)factory.triangles.size(),(int)factory.bvh_nodes.size() };
 }
 
-TriangleBVH TriangleBVH::Factory::BuildBVHFromSimpleTri() {
+TriangleBVH TriangleBVH::Factory::BuildBVHFromUnityTri() {
 	
 	TriangleBVH::Factory factory{};
 
-	factory._loadSimpleTri();
+	factory._loadSimpleTri("../Assets/test_geometry/unity.tri", 12582);
+	factory._buildBVH();
+	factory._loadToDevice();
+
+	return TriangleBVH{ factory.d_nodes,factory.d_tris,factory.d_indices,factory.root_index,(int)factory.triangles.size(),(int)factory.bvh_nodes.size() };
+}
+
+TriangleBVH TriangleBVH::Factory::BuildBVHFromBigBenTri() {
+	
+	TriangleBVH::Factory factory{};
+
+	factory._loadSimpleTri("../Assets/test_geometry/bigben.tri", 20944);
+
 	factory._buildBVH();
 	factory._loadToDevice();
 
@@ -128,13 +140,13 @@ void TriangleBVH::Factory::_generateTriangles(int triangle_count, int seed) {
 	LOG(INFO) << "TriangleBVH::Factory::_generateTriangles ==> triangles generated in " << tri_gen_timer.ElapsedTimeMS() << "ms.";
 }
 
-void TriangleBVH::Factory::_loadSimpleTri() {
-	LOG(INFO) << "TriangleBVH::Factory::_loadSimpleTri ==> loading simple triangle model from disk.";
+void TriangleBVH::Factory::_loadSimpleTri(std::string path, int tri_count) {
+	LOG(INFO) << "TriangleBVH::Factory::_loadSimpleTri ==> loading \"" << path << "\" from disk.";
 	HostTimer model_load_timer{};
 	model_load_timer.Start();
 
 	FILE* file{nullptr};
-	fopen_s(&file, "../Assets/test_geometry/unity.tri", "r");
+	fopen_s(&file, path.c_str(), "r");
 	if (file == nullptr) {
 		LOG(FATAL) << "Could not open model file.";
 		assert(0);
@@ -142,7 +154,7 @@ void TriangleBVH::Factory::_loadSimpleTri() {
 	}
 
 	float a, b, c, d, e, f, g, h, i;
-	for (int t = 0; t < 12582; t++) {
+	for (int t = 0; t < tri_count; t++) {
 		fscanf_s(file, "%f %f %f %f %f %f %f %f %f\n",
 			&a, &b, &c, &d, &e, &f, &g, &h, &i);
 		Tri tri{};
@@ -175,6 +187,11 @@ void TriangleBVH::Factory::_buildBVH() {
 
 	bvh_construction_timer.End();
 	LOG(INFO) << "TriangleBVH::Factory::_buildBVH ==> BVH built in " << bvh_construction_timer.ElapsedTimeMS() << "ms.";
+
+	root = bvh_nodes[root_index];
+	LOG(INFO) << "TriangleBVH::Factory::_buildBVH ==> models bounds is: "
+		<< "(" << root.bounds.min.x << ", " << root.bounds.min.y << ", " << root.bounds.min.z << ")"
+		<< " (" << root.bounds.max.x << ", " << root.bounds.max.y << ", " << root.bounds.max.z << ")";
 }
 
 float TriangleBVH::Factory::_findBestSplitPlane(int node_index, int& axis, float& split_pos) {

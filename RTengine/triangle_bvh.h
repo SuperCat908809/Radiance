@@ -2,6 +2,7 @@
 #define TRIANGLE_BVH_CLASS_CUDA_H
 
 #include <vector>
+#include <string>
 #include <glm/glm.hpp>
 
 #include "ray.h"
@@ -90,7 +91,7 @@ class TriangleBVH::Factory {
 	void _subdivideNode(int node_index);
 
 	void _generateTriangles(int triangle_count, int seed);
-	void _loadSimpleTri();
+	void _loadSimpleTri(std::string path, int triangle_count);
 
 	float _findBestSplitPlane(int node_index, int& axis, float& split_pos);
 	float _evaluateSAH(int node_index, int candidate_axis, float candidate_split_pos);
@@ -104,7 +105,8 @@ class TriangleBVH::Factory {
 public:
 
 	static TriangleBVH BuildBVHFromRandomTriangles(int triangle_count, int seed);
-	static TriangleBVH BuildBVHFromSimpleTri();
+	static TriangleBVH BuildBVHFromUnityTri();
+	static TriangleBVH BuildBVHFromBigBenTri();
 };
 
 struct TriangleBVH::handle_cu {
