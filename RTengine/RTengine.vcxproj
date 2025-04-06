@@ -159,10 +159,12 @@
     <ClCompile Include="..\include\easylogging\easylogging++.cc" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="header_library_impl.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="renderbuffer.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="triangle_bvh.cpp" />
+    <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main_Kernel.cu" />
@@ -174,12 +176,15 @@
     <ClInclude Include="cuError.h" />
     <ClInclude Include="host_timer.h" />
     <ClInclude Include="main_Kernel.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="object.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="renderbuffer.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="triangles.h" />
     <ClInclude Include="triangle_bvh.h" />
+    <ClInclude Include="world.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="bvh_metrics.inl" />

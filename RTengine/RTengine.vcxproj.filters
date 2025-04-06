@@ -20,6 +20,12 @@
     <ClCompile Include="renderbuffer.cpp">
       <Filter>rt_engine\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="mesh.cpp">
+      <Filter>rt_engine\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="world.cpp">
+      <Filter>rt_engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ray.h">
@@ -57,6 +63,15 @@
     </ClInclude>
     <ClInclude Include="renderbuffer.h">
       <Filter>rt_engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>rt_engine\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="object.h">
+      <Filter>rt_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="world.h">
+      <Filter>rt_engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
